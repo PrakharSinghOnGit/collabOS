@@ -9,18 +9,23 @@ CollabOS is a custom operating system built from scratch that focuses on enablin
 ### Key Features (v0.1)
 
 - ✅ Custom kernel that boots in VMs
-- ✅ VGA text mode display
-- ✅ Basic keyboard input handling
+- ✅ **Dual boot modes**: Text mode (80x25) and Desktop mode (320x200 graphics)
+- ✅ VGA text mode with colors and scrolling
+- ✅ Graphics mode with pixel/line/rectangle drawing
+- ✅ Window manager with desktop environment
+- ✅ Basic keyboard input handling (port I/O)
 - ✅ Network communication framework
 - ✅ Foundation for inter-VM communication
 
 ### Future Features (Roadmap)
 
+- 🔄 Keyboard interrupts (IRQ1) for input handling
+- 🔄 Mouse driver for GUI interaction
+- 🔄 Interactive windows (drag, resize, close)
 - 🔄 Screen sharing between VMs
 - 🔄 Multi-user text editing
 - 🔄 File synchronization
 - 🔄 Real-time collaboration APIs
-- 🔄 Graphical user interface
 
 ## 🛠 Development Setup
 
@@ -67,22 +72,34 @@ sudo apt-get install qemu-system-x86 gcc-multilib nasm grub2-common xorriso
    brew install qemu x86_64-elf-gcc nasm i686-elf-grub xorriso
    ```
 
-3. **Build and run CollabOS (Easy method):**
+3. **Build and run CollabOS:**
 
-   ```bash
-   ./run.sh
-   ```
-
-   **Or manually:**
+   **Text Mode (default):**
 
    ```bash
    make run
+   # or
+   ./switch-mode.sh text
+   ```
+
+   **Desktop Mode (graphical):**
+
+   ```bash
+   ./switch-mode.sh desktop
+   ```
+
+   **Check current mode:**
+
+   ```bash
+   ./check-mode.sh
    ```
 
 4. **For networking tests between two VMs:**
    ```bash
    make run-dual
    ```
+
+> 📖 **See [TESTING.md](TESTING.md) for detailed information about both boot modes!**
 
 ## 📁 Project Structure
 
@@ -91,22 +108,32 @@ collabOS/
 ├── boot/
 │   └── grub.cfg              # GRUB bootloader configuration
 ├── kernel/
-│   ├── boot.s                # Assembly boot code with multiboot header
-│   ├── main.c                # Core kernel loop and initialization
-│   ├── screen.c              # VGA text mode display driver
-│   ├── keyboard.c            # Keyboard input handler
-│   └── net.c                 # Network communication primitives
+│   ├── boot.s                # Assembly bootstrap + Multiboot header
+│   ├── main.c                # Text mode entry point
+│   ├── main_desktop.c        # Desktop mode entry point
+│   ├── screen.c              # VGA text mode driver (80x25)
+│   ├── graphics.c            # VGA graphics driver (320x200)
+│   ├── desktop.c             # Window manager & desktop environment
+│   ├── keyboard.c            # PS/2 keyboard driver
+│   ├── net.c                 # Network communication framework
+│   ├── serial.c              # Serial port debugging
+│   └── string.c              # Standard library functions
 ├── include/
-│   ├── screen.h              # Display function declarations
-│   ├── keyboard.h            # Keyboard function declarations
-│   └── net.h                 # Network function declarations
+│   ├── screen.h              # Text mode declarations
+│   ├── graphics.h            # Graphics mode declarations
+│   ├── desktop.h             # Window manager declarations
+│   ├── keyboard.h            # Keyboard declarations
+│   └── net.h                 # Network declarations
 ├── build/                    # Generated files (created during build)
 │   ├── *.o                   # Object files
 │   ├── kernel.bin            # Compiled kernel binary
 │   └── collabos.iso          # Bootable ISO image
 ├── linker.ld                 # Linker script for kernel layout
 ├── Makefile                  # Build system
-└── README.md                 # This file
+├── switch-mode.sh            # Switch between text/desktop modes
+├── check-mode.sh             # Check current boot mode
+├── README.md                 # This file
+└── TESTING.md                # Testing guide for both modes
 ```
 
 ## 🔧 Build System

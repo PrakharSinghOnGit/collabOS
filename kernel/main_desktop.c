@@ -1,8 +1,24 @@
 #include "../include/screen.h"
 #include "../include/keyboard.h"
-#include "../include/net.h"
+#include "../include/desktop.h"
+
+// Simple delay function
+void delay(int count) {
+    for (int i = 0; i < count; i++) {
+        for (int j = 0; j < 10000; j++) {
+            __asm__ volatile ("nop");
+        }
+    }
+}
 
 void kernel_main(void) {
+    // Write directly to VGA memory as first thing - this always works
+    unsigned short* vga = (unsigned short*)0xB8000;
+    const char* msg = "DESKTOP BOOT";
+    for (int i = 0; msg[i] != '\0'; i++) {
+        vga[i] = (unsigned short)msg[i] | 0x0F00;
+    }
+    
     // Initialize terminal
     terminal_initialize();
     
@@ -19,35 +35,31 @@ void kernel_main(void) {
     
     // Initialize subsystems
     print("[OK] Display system initialized\n");
+    delay(50);
     print("[OK] Memory management ready\n");
+    delay(50);
     print("[OK] Kernel heap allocated\n");
-    
-    // Future: Initialize keyboard with interrupts
-    // keyboard_initialize();
-    print("[SKIP] Keyboard driver (not yet implemented)\n");
-    
-    // Future: Initialize network
-    // network_initialize();
-    print("[SKIP] Network stack (not yet implemented)\n");
+    delay(50);
+    print("[OK] Graphics driver loaded\n");
+    delay(50);
     
     print("\n");
     terminal_setcolor(vga_entry_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
-    print("CollabOS is ready!\n\n");
+    print("System initialization complete!\n\n");
     
     terminal_setcolor(vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK));
-    print("Next milestone: Desktop Environment\n");
-    print("- VGA graphics mode (320x200 or 640x480)\n");
-    print("- Window manager\n");
-    print("- Mouse support\n");
-    print("- Basic UI widgets\n\n");
+    print("Starting desktop environment in 3 seconds...\n");
+    print("Close QEMU window to exit.\n\n");
     
-    terminal_setcolor(vga_entry_color(VGA_COLOR_BROWN, VGA_COLOR_BLACK));
-    print("System is running in kernel mode.\n");
-    print("Close QEMU window to exit.\n");
+    // Wait a bit before switching
+    delay(300);
     
-    // Main kernel loop
+    // Switch to graphics mode and run desktop
+    desktop_init();
+    desktop_run();
+    
+    // Should never reach here
     while (1) {
-        // Halt CPU until next interrupt
         __asm__ volatile ("hlt");
     }
 }

@@ -11,10 +11,14 @@
 
 🚀 RUN COMMANDS
 ─────────────────────────────────────────────────────────────
-  make run           Run single VM in QEMU
+  make run           Run single VM (text mode by default)
   make run-net       Run with networking enabled
   make run-dual      Run two VMs (for collaboration tests)
   make debug         Run with GDB debugging
+  
+  ./switch-mode.sh text     Switch to text mode (80x25)
+  ./switch-mode.sh desktop  Switch to desktop mode (320x200)
+  ./check-mode.sh           Check current boot mode
 
 🔍 INFO COMMANDS
 ─────────────────────────────────────────────────────────────
@@ -23,16 +27,22 @@
 
 📁 KEY FILES
 ─────────────────────────────────────────────────────────────
-  kernel/main.c      Kernel entry point and main loop
-  kernel/screen.c    Display driver (VGA text mode)
-  kernel/keyboard.c  Keyboard input handler
-  kernel/net.c       Network communication (stub)
-  kernel/boot.s      Assembly bootstrap + Multiboot header
+  kernel/main.c         Kernel entry (text mode)
+  kernel/main_desktop.c Kernel entry (desktop mode)
+  kernel/screen.c       VGA text driver (80x25, 0xB8000)
+  kernel/graphics.c     VGA graphics driver (320x200, 0xA0000)
+  kernel/desktop.c      Window manager & desktop environment
+  kernel/keyboard.c     Keyboard input handler
+  kernel/net.c          Network communication (stub)
+  kernel/boot.s         Assembly bootstrap + Multiboot header
   
-  include/*.h        Header files
-  boot/grub.cfg      GRUB bootloader configuration
-  linker.ld          Kernel memory layout script
-  Makefile           Build system
+  include/*.h           Header files
+  boot/grub.cfg         GRUB bootloader configuration
+  linker.ld             Kernel memory layout script
+  Makefile              Build system
+  
+  switch-mode.sh        Toggle text/desktop modes
+  check-mode.sh         Show current mode
 
 🔧 TOOLS USED
 ─────────────────────────────────────────────────────────────
@@ -55,20 +65,26 @@
 
 🎯 CURRENT STATUS
 ─────────────────────────────────────────────────────────────
-  ✅ Boots in VM
-  ✅ Displays text
-  ✅ Basic structure ready
-  🔄 Keyboard (needs real interrupt handler)
+  ✅ Boots in VM (text and desktop modes)
+  ✅ VGA text mode (80x25, 16 colors)
+  ✅ VGA graphics mode (320x200, 256 colors)
+  ✅ Window manager with 3 demo windows
+  ✅ Desktop environment with taskbar
+  ✅ Font rendering in graphics mode
+  🔄 Keyboard (port I/O ready, needs IRQ handler)
+  🔄 Mouse driver (next priority)
   🔄 Networking (stub implementation)
-  ⏳ Inter-VM communication (next milestone)
+  ⏳ Inter-VM communication (future milestone)
 
-📚 NEXT STEPS (Week 2)
+📚 NEXT STEPS
 ─────────────────────────────────────────────────────────────
   1. Implement keyboard interrupt handler (IRQ1)
-  2. Add network card driver (e.g., RTL8139)
-  3. Create simple packet protocol
-  4. Test communication between two VMs
-  5. Build shared terminal demo
+  2. Add PS/2 mouse driver for cursor control
+  3. Make windows interactive (drag, resize, close)
+  4. Add network card driver (e.g., RTL8139)
+  5. Create simple packet protocol
+  6. Test communication between two VMs
+  7. Build shared terminal demo
 
 🐛 TROUBLESHOOTING
 ─────────────────────────────────────────────────────────────
@@ -85,16 +101,20 @@
 ─────────────────────────────────────────────────────────────
   • Use 'make clean' before rebuilding after major changes
   • The ISO boots on real hardware (USB boot via Rufus/dd)
-  • VGA buffer at 0xB8000 - direct memory access
+  • Text mode: VGA buffer at 0xB8000 (80x25 chars)
+  • Graphics mode: Framebuffer at 0xA0000 (320x200 pixels)
   • Kernel loads at 1MB (0x100000) physical memory
   • Stack is 16KB in BSS section
+  • See TESTING.md for detailed mode switching guide
 
 🌐 RESOURCES
 ─────────────────────────────────────────────────────────────
   OSDev Wiki:     https://wiki.osdev.org/
-  This Project:   SETUP_COMPLETE.md (detailed setup info)
-  Main Docs:      README.md (full documentation)
+  README.md:      Full documentation
+  TESTING.md:     Mode switching and testing guide
+  DESKTOP_MODE.md: Desktop environment details
+  SETUP_COMPLETE.md: Detailed setup information
 
 ═══════════════════════════════════════════════════════════════
-  CollabOS v0.1 | For education and collaboration
+  CollabOS v0.1 | Dual-mode OS with desktop environment
 ═══════════════════════════════════════════════════════════════
