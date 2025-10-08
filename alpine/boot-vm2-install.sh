@@ -2,7 +2,7 @@
 # Boot VM2 for Alpine Linux installation
 # This script boots from the ISO to install Alpine Linux to the virtual disk
 
-ISO_PATH="${ISO_PATH:-../alpine-virt-3.19.0-x86_64.iso}"
+ISO_PATH="${ISO_PATH:-../alpine-virt-3.19.1-x86_64.iso}"
 DISK_PATH="vms/alpine-vm2.qcow2"
 
 if [ ! -f "$ISO_PATH" ]; then

@@ -5,6 +5,7 @@ This directory contains the Alpine Linux virtual machines for CollabOS Phase 1.
 ## Quick Start
 
 ### 1. Prerequisites
+
 - QEMU installed (`brew install qemu` on macOS)
 - Alpine Linux ISO downloaded (alpine-virt-3.19.0-x86_64.iso)
 - Place ISO in parent directory or set `ISO_PATH` environment variable
@@ -12,12 +13,14 @@ This directory contains the Alpine Linux virtual machines for CollabOS Phase 1.
 ### 2. Installation Process
 
 #### Install VM1:
+
 ```bash
 cd /Users/shaansingh/dev/projects/collabOS/alpine
 ./boot-vm1-install.sh
 ```
 
 Follow the on-screen prompts:
+
 - Login: `root` (no password)
 - Run: `setup-alpine`
 - Hostname: `collabos-vm1`
@@ -27,6 +30,7 @@ Follow the on-screen prompts:
 - After installation: `poweroff`
 
 #### Install VM2:
+
 ```bash
 ./boot-vm2-install.sh
 ```
@@ -36,15 +40,19 @@ Same process as VM1 but use hostname: `collabos-vm2`
 ### 3. Running VMs (After Installation)
 
 #### Start VM1:
+
 ```bash
 ./boot-vm1.sh
 ```
+
 - SSH access: `ssh root@localhost -p 2221`
 
 #### Start VM2:
+
 ```bash
 ./boot-vm2.sh
 ```
+
 - SSH access: `ssh root@localhost -p 2222`
 
 ### 4. Post-Installation Setup
@@ -89,31 +97,37 @@ alpine/
 ## Network Configuration
 
 Both VMs use QEMU's user-mode networking:
+
 - VM1: SSH forwarded to localhost:2221
 - VM2: SSH forwarded to localhost:2222
 
 For VM-to-VM communication in Phase 1, we'll use:
+
 - Option A: Host as relay (VMs connect to host WebSocket server)
 - Option B: QEMU socket networking (direct VM-to-VM)
 
 ## Troubleshooting
 
 ### Can't connect via SSH
+
 - Verify VM is running: check QEMU window
 - Verify SSH is installed: `apk add openssh` in VM
 - Verify SSH is running: `rc-service sshd start` in VM
 
 ### ISO not found
+
 - Check ISO location: should be `../alpine-virt-3.19.0-x86_64.iso`
 - Or set environment variable: `export ISO_PATH=/path/to/alpine.iso`
 
 ### QEMU not found
+
 - Install QEMU: `brew install qemu` (macOS)
 - Verify: `which qemu-system-x86_64`
 
 ## Next Steps
 
 After both VMs are installed and configured:
+
 1. Test SSH connectivity to both VMs
 2. Install development tools on both
 3. Proceed to Phase 1 shared terminal implementation

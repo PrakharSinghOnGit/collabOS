@@ -23,6 +23,7 @@ This implementation allows multiple users on different VMs to share a single ter
 ## Components
 
 ### 1. Server (`server.py`)
+
 - Runs a WebSocket server (default port 8765)
 - Spawns a shell process (`/bin/sh`) with pseudo-terminal (PTY)
 - Reads output from shell and broadcasts to all clients
@@ -30,6 +31,7 @@ This implementation allows multiple users on different VMs to share a single ter
 - Manages client connections/disconnections
 
 ### 2. Client (`client.py`)
+
 - Connects to WebSocket server
 - Captures user input character-by-character
 - Sends input to server
@@ -41,6 +43,7 @@ This implementation allows multiple users on different VMs to share a single ter
 Messages are JSON-formatted:
 
 ### Client → Server
+
 ```json
 {
   "type": "input",
@@ -50,6 +53,7 @@ Messages are JSON-formatted:
 ```
 
 ### Server → Client
+
 ```json
 {
   "type": "output",
@@ -59,6 +63,7 @@ Messages are JSON-formatted:
 ```
 
 ### Message Types
+
 - `welcome`: Initial connection message from server
 - `input`: User input from client to server
 - `output`: Terminal output from server to clients
@@ -70,18 +75,21 @@ Messages are JSON-formatted:
 ### Option 1: Server on Host, Clients on VMs
 
 **On host machine:**
+
 ```bash
 cd /Users/shaansingh/dev/projects/collabOS/collaboration/shared-terminal
 python3 server.py
 ```
 
 **On VM1 (SSH: localhost:2221):**
+
 ```bash
 cd /root/collabos/shared-terminal
 python3 client.py --server ws://10.0.2.2:8765
 ```
 
 **On VM2 (SSH: localhost:2222):**
+
 ```bash
 cd /root/collabos/shared-terminal
 python3 client.py --server ws://10.0.2.2:8765
@@ -92,6 +100,7 @@ Note: `10.0.2.2` is the host machine from QEMU's user-mode networking
 ### Option 2: Server on VM1, Client on VM2
 
 **On VM1:**
+
 ```bash
 # Start server
 python3 server.py
@@ -101,6 +110,7 @@ python3 client.py --server ws://localhost:8765
 ```
 
 **On VM2:**
+
 ```bash
 # Connect to VM1's server (need VM1's IP)
 python3 client.py --server ws://VM1_IP:8765
@@ -109,6 +119,7 @@ python3 client.py --server ws://VM1_IP:8765
 ## Installation
 
 ### Prerequisites
+
 ```bash
 # On Alpine Linux VMs
 apk add python3 py3-pip
@@ -120,6 +131,7 @@ pip3 install --break-system-packages websockets
 ### Copy Files to VMs
 
 **Method 1: SCP from host**
+
 ```bash
 # Copy to VM1
 scp -P 2221 server.py client.py root@localhost:/root/collabos/shared-terminal/
@@ -129,6 +141,7 @@ scp -P 2222 server.py client.py root@localhost:/root/collabos/shared-terminal/
 ```
 
 **Method 2: Git clone**
+
 ```bash
 # On each VM
 cd /root/collabos
@@ -139,6 +152,7 @@ cd collabOS/collaboration/shared-terminal
 ## Testing
 
 ### Test 1: Single Client
+
 ```bash
 # Terminal 1: Start server
 python3 server.py
@@ -150,6 +164,7 @@ python3 client.py
 ```
 
 ### Test 2: Multiple Clients
+
 ```bash
 # Terminal 1: Start server
 python3 server.py
@@ -164,6 +179,7 @@ python3 client.py
 ```
 
 ### Test 3: VM-to-VM
+
 ```bash
 # VM1: Start server
 ssh root@localhost -p 2221
@@ -183,14 +199,14 @@ python3 /root/collabos/shared-terminal/client.py --server ws://10.0.2.2:8765
 ✅ **Character-by-character**: Raw terminal mode for immediate feedback  
 ✅ **PTY Support**: Full terminal features (colors, cursor movement, etc.)  
 ✅ **Graceful Disconnection**: Handles client connect/disconnect cleanly  
-✅ **Cross-VM**: Works across different VMs and host machine  
+✅ **Cross-VM**: Works across different VMs and host machine
 
 ## Limitations
 
 ⚠️ **No Authentication**: Anyone who can reach the server can connect  
 ⚠️ **No Encryption**: Messages sent in plaintext (use WSS for production)  
 ⚠️ **Single Shell**: All clients share one shell instance  
-⚠️ **Race Conditions**: Simultaneous input from multiple users can interleave  
+⚠️ **Race Conditions**: Simultaneous input from multiple users can interleave
 
 ## Future Enhancements
 
@@ -205,16 +221,19 @@ python3 /root/collabos/shared-terminal/client.py --server ws://10.0.2.2:8765
 ## Troubleshooting
 
 ### Can't connect to server
+
 - Verify server is running: `ps aux | grep server.py`
 - Check firewall: `iptables -L`
 - Verify port is open: `netstat -tlnp | grep 8765`
 - Check URL: Make sure `ws://` prefix is present
 
 ### Input not working
+
 - Check terminal raw mode is active
 - Verify stdin is a TTY: `python3 -c "import sys; print(sys.stdin.isatty())"`
 
 ### Output not appearing
+
 - Check server logs for errors
 - Verify WebSocket connection: Look for "Client connected" message
 - Check terminal encoding: Should be UTF-8
@@ -222,6 +241,7 @@ python3 /root/collabos/shared-terminal/client.py --server ws://10.0.2.2:8765
 ## Development
 
 ### Run with debugging
+
 ```bash
 # Server with verbose output
 python3 -u server.py
@@ -231,6 +251,7 @@ python3 -u client.py --server ws://localhost:8765
 ```
 
 ### Code Structure
+
 ```
 server.py
 ├─ TerminalServer class

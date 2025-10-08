@@ -96,6 +96,7 @@ scp -P 2222 *.py root@localhost:/root/collabos/
 ## 📊 Current Status
 
 ### ✅ Completed (100%)
+
 - [x] Project status report (PROJECT_STATUS_PHASE1.md)
 - [x] Alpine Linux ISO downloaded
 - [x] Virtual disk images created (10GB each)
@@ -107,23 +108,25 @@ scp -P 2222 *.py root@localhost:/root/collabos/
 - [x] Installation guide created
 
 ### 🔄 In Progress (0%)
+
 - [ ] Alpine Linux installation on VM1
 - [ ] Alpine Linux installation on VM2
 
 ### ⏳ Pending (0%)
+
 - [ ] Development tools installation
 - [ ] Shared terminal deployment
 - [ ] Two-VM collaboration testing
 
 ## 🎯 Phase 1 Goals
 
-| Goal | Status | Notes |
-|------|--------|-------|
-| Network between 2 VMs | Ready | QEMU networking configured |
-| Data transfer | Ready | WebSocket protocol implemented |
-| State synchronization | Ready | Terminal I/O broadcast system |
-| Real-time collaboration | Ready | Character-by-character sync |
-| Documentation | ✅ Done | 2000+ lines of docs |
+| Goal                    | Status  | Notes                          |
+| ----------------------- | ------- | ------------------------------ |
+| Network between 2 VMs   | Ready   | QEMU networking configured     |
+| Data transfer           | Ready   | WebSocket protocol implemented |
+| State synchronization   | Ready   | Terminal I/O broadcast system  |
+| Real-time collaboration | Ready   | Character-by-character sync    |
+| Documentation           | ✅ Done | 2000+ lines of docs            |
 
 ## 🔧 Key Commands
 
@@ -189,17 +192,20 @@ After completing Phase 1, you should be able to:
 ## 🐛 Common Issues
 
 ### QEMU not found
+
 ```bash
 brew install qemu
 ```
 
 ### ISO not found
+
 ```bash
 cd /Users/shaansingh/dev/projects/collabOS
 curl -LO https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-virt-3.19.0-x86_64.iso
 ```
 
 ### Websockets not installed
+
 ```bash
 pip3 install websockets
 # Or on Alpine VM:
@@ -207,6 +213,7 @@ pip3 install --break-system-packages websockets
 ```
 
 ### Can't SSH to VM
+
 - Wait 30 seconds after boot
 - Check VM is running: `ps aux | grep qemu`
 - Verify port forwarding: `lsof -i :2221`
@@ -247,12 +254,14 @@ pkill -f server.py
 ---
 
 **Ready to start? Begin with:**
+
 ```bash
 cd /Users/shaansingh/dev/projects/collabOS/alpine
 ./boot-vm1-install.sh
 ```
 
 Or test locally first:
+
 ```bash
 cd /Users/shaansingh/dev/projects/collabOS/collaboration/shared-terminal
 pip3 install websockets

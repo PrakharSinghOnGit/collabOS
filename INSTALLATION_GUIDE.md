@@ -3,6 +3,7 @@
 ## Current Status
 
 ✅ **Completed:**
+
 1. Project documentation and status report
 2. Virtual disk images created (alpine-vm1.qcow2, alpine-vm2.qcow2)
 3. VM boot scripts created
@@ -21,6 +22,7 @@ cd /Users/shaansingh/dev/projects/collabOS/alpine
 ```
 
 **Installation prompts:**
+
 1. Login: `root` (no password)
 2. Run: `setup-alpine`
 3. Keyboard: `us`
@@ -60,11 +62,13 @@ ssh root@localhost -p 2221
 ```
 
 On host machine:
+
 ```bash
 scp -P 2221 /Users/shaansingh/dev/projects/collabOS/alpine/setup-vm.sh root@localhost:/root/
 ```
 
 On VM1:
+
 ```bash
 chmod +x /root/setup-vm.sh
 /root/setup-vm.sh
@@ -82,11 +86,13 @@ ssh root@localhost -p 2222
 ```
 
 On host machine:
+
 ```bash
 scp -P 2222 /Users/shaansingh/dev/projects/collabOS/alpine/setup-vm.sh root@localhost:/root/
 ```
 
 On VM2:
+
 ```bash
 chmod +x /root/setup-vm.sh
 /root/setup-vm.sh
@@ -108,6 +114,7 @@ scp -P 2222 server.py client.py README.md root@localhost:/root/collabos/
 ### Step 6: Test Shared Terminal (10 minutes)
 
 **Terminal 1 - Start server on VM1:**
+
 ```bash
 ssh root@localhost -p 2221
 cd /root/collabos
@@ -115,6 +122,7 @@ python3 server.py
 ```
 
 **Terminal 2 - Connect client on VM1:**
+
 ```bash
 ssh root@localhost -p 2221
 cd /root/collabos
@@ -122,6 +130,7 @@ python3 client.py --server ws://localhost:8765
 ```
 
 **Terminal 3 - Connect client on VM2:**
+
 ```bash
 ssh root@localhost -p 2222
 cd /root/collabos
@@ -131,6 +140,7 @@ python3 client.py --server ws://10.0.2.2:8765
 Note: `10.0.2.2` is the host machine from QEMU's perspective
 
 **Test commands:**
+
 ```bash
 # Type in any terminal:
 ls -la
@@ -144,15 +154,15 @@ All commands should execute and output appear in all connected clients!
 
 ## Expected Timeline
 
-| Task | Duration | Cumulative |
-|------|----------|------------|
-| Install VM1 | 30 min | 30 min |
-| Install VM2 | 30 min | 1 hour |
-| Setup VM1 environment | 15 min | 1h 15m |
-| Setup VM2 environment | 15 min | 1h 30m |
-| Deploy code | 10 min | 1h 40m |
-| Test collaboration | 10 min | 1h 50m |
-| Documentation | 10 min | 2 hours |
+| Task                  | Duration | Cumulative |
+| --------------------- | -------- | ---------- |
+| Install VM1           | 30 min   | 30 min     |
+| Install VM2           | 30 min   | 1 hour     |
+| Setup VM1 environment | 15 min   | 1h 15m     |
+| Setup VM2 environment | 15 min   | 1h 30m     |
+| Deploy code           | 10 min   | 1h 40m     |
+| Test collaboration    | 10 min   | 1h 50m     |
+| Documentation         | 10 min   | 2 hours    |
 
 **Total: ~2 hours for complete Phase 1 implementation**
 
@@ -181,29 +191,35 @@ python3 client.py
 ## Troubleshooting
 
 ### QEMU not found
+
 ```bash
 brew install qemu
 ```
 
 ### ISO not found
+
 Download Alpine Linux:
+
 ```bash
 cd /Users/shaansingh/dev/projects/collabOS
 curl -LO https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-virt-3.19.0-x86_64.iso
 ```
 
 ### Can't SSH to VM
+
 - Wait 30 seconds after VM boots
 - Check VM is running: `ps aux | grep qemu`
 - Verify SSH port: `lsof -i :2221` or `lsof -i :2222`
 
 ### Websockets not found on VM
+
 ```bash
 # On the VM
 pip3 install --break-system-packages websockets
 ```
 
 ### Can't connect client to server
+
 - Verify server is running: `ps aux | grep server.py`
 - Check firewall (usually not an issue in QEMU)
 - Use `10.0.2.2` from VM to reach host
@@ -217,11 +233,12 @@ pip3 install --break-system-packages websockets
 ✅ Clients connect from both VMs  
 ✅ Commands typed in one VM execute and display on other VM  
 ✅ Real-time synchronization (< 100ms latency)  
-✅ Multiple simultaneous users supported  
+✅ Multiple simultaneous users supported
 
 ## What's Next (Phase 2)
 
 After Phase 1 is complete:
+
 1. Custom GTK desktop environment
 2. Window manager for CollabOS
 3. Graphical application framework
@@ -239,6 +256,7 @@ After Phase 1 is complete:
 ---
 
 **Ready to start? Run:**
+
 ```bash
 cd /Users/shaansingh/dev/projects/collabOS/alpine
 ./boot-vm1-install.sh
