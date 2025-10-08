@@ -1,0 +1,100 @@
+╔══════════════════════════════════════════════════════════════╗
+║                  CollabOS Quick Reference                    ║
+╚══════════════════════════════════════════════════════════════╝
+
+📦 BUILD COMMANDS
+─────────────────────────────────────────────────────────────
+  make clean         Remove all build artifacts
+  make all           Build the OS (creates collabos.iso)
+  make               Same as 'make all'
+  ./run.sh           One-command: clean, build, and run
+
+🚀 RUN COMMANDS
+─────────────────────────────────────────────────────────────
+  make run           Run single VM in QEMU
+  make run-net       Run with networking enabled
+  make run-dual      Run two VMs (for collaboration tests)
+  make debug         Run with GDB debugging
+
+🔍 INFO COMMANDS
+─────────────────────────────────────────────────────────────
+  make help          Show all available targets
+  make install-deps  Show dependency installation guide
+
+📁 KEY FILES
+─────────────────────────────────────────────────────────────
+  kernel/main.c      Kernel entry point and main loop
+  kernel/screen.c    Display driver (VGA text mode)
+  kernel/keyboard.c  Keyboard input handler
+  kernel/net.c       Network communication (stub)
+  kernel/boot.s      Assembly bootstrap + Multiboot header
+  
+  include/*.h        Header files
+  boot/grub.cfg      GRUB bootloader configuration
+  linker.ld          Kernel memory layout script
+  Makefile           Build system
+
+🔧 TOOLS USED
+─────────────────────────────────────────────────────────────
+  Compiler:   x86_64-elf-gcc -m32
+  Linker:     x86_64-elf-ld
+  Assembler:  nasm
+  Bootloader: i686-elf-grub-mkrescue
+  VM:         qemu-system-i386
+
+💾 BUILD ARTIFACTS (in build/)
+─────────────────────────────────────────────────────────────
+  kernel.bin         Final kernel binary
+  collabos.iso       Bootable ISO image
+  *.o                Object files
+
+⚡ QUICK START
+─────────────────────────────────────────────────────────────
+  cd /Users/shaansingh/dev/projects/collabOS
+  ./run.sh           # Builds and runs automatically!
+
+🎯 CURRENT STATUS
+─────────────────────────────────────────────────────────────
+  ✅ Boots in VM
+  ✅ Displays text
+  ✅ Basic structure ready
+  🔄 Keyboard (needs real interrupt handler)
+  🔄 Networking (stub implementation)
+  ⏳ Inter-VM communication (next milestone)
+
+📚 NEXT STEPS (Week 2)
+─────────────────────────────────────────────────────────────
+  1. Implement keyboard interrupt handler (IRQ1)
+  2. Add network card driver (e.g., RTL8139)
+  3. Create simple packet protocol
+  4. Test communication between two VMs
+  5. Build shared terminal demo
+
+🐛 TROUBLESHOOTING
+─────────────────────────────────────────────────────────────
+  Problem:    Build fails with "command not found"
+  Solution:   brew install x86_64-elf-gcc nasm i686-elf-grub
+  
+  Problem:    QEMU doesn't start
+  Solution:   brew install qemu
+  
+  Problem:    Changes not reflected
+  Solution:   make clean && make all
+
+💡 TIPS
+─────────────────────────────────────────────────────────────
+  • Use 'make clean' before rebuilding after major changes
+  • The ISO boots on real hardware (USB boot via Rufus/dd)
+  • VGA buffer at 0xB8000 - direct memory access
+  • Kernel loads at 1MB (0x100000) physical memory
+  • Stack is 16KB in BSS section
+
+🌐 RESOURCES
+─────────────────────────────────────────────────────────────
+  OSDev Wiki:     https://wiki.osdev.org/
+  This Project:   SETUP_COMPLETE.md (detailed setup info)
+  Main Docs:      README.md (full documentation)
+
+═══════════════════════════════════════════════════════════════
+  CollabOS v0.1 | For education and collaboration
+═══════════════════════════════════════════════════════════════

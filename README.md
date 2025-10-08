@@ -28,10 +28,16 @@ CollabOS is a custom operating system built from scratch that focuses on enablin
 
 You'll need the following tools installed:
 
-#### macOS (with Homebrew)
+#### macOS (Apple Silicon - ARM)
 
 ```bash
-brew install qemu i386-elf-gcc nasm grub
+brew install qemu x86_64-elf-gcc nasm i686-elf-grub xorriso
+```
+
+#### macOS (Intel - x86)
+
+```bash
+brew install qemu x86_64-elf-gcc nasm i686-elf-grub xorriso
 ```
 
 #### Ubuntu/Debian
@@ -55,20 +61,25 @@ sudo apt-get install qemu-system-x86 gcc-multilib nasm grub2-common xorriso
    cd /path/to/collabOS
    ```
 
-2. **Install dependencies:**
+2. **Install dependencies (macOS with Homebrew):**
 
    ```bash
-   make install-deps
+   brew install qemu x86_64-elf-gcc nasm i686-elf-grub xorriso
    ```
 
-3. **Build and run CollabOS:**
+3. **Build and run CollabOS (Easy method):**
+
+   ```bash
+   ./run.sh
+   ```
+
+   **Or manually:**
 
    ```bash
    make run
    ```
 
 4. **For networking tests between two VMs:**
-
    ```bash
    make run-dual
    ```
@@ -207,17 +218,36 @@ make run-dual
 
 ### Common Issues
 
-1. **Build Errors**
+1. **"i386-elf-gcc: No such file or directory"**
+
+   ```bash
+   # On Apple Silicon Macs, use x86_64-elf-gcc instead
+   brew install x86_64-elf-gcc
+   # The Makefile is already configured to use x86_64-elf-gcc
+   ```
+
+2. **"grub-mkrescue: command not found"**
+
+   ```bash
+   # Install the correct GRUB package for your system
+   brew install i686-elf-grub xorriso
+   ```
+
+3. **Build Errors**
 
    ```bash
    # Ensure cross-compiler is installed
-   which i386-elf-gcc
+   which x86_64-elf-gcc
 
    # Check GRUB tools
-   which grub-mkrescue
+   which i686-elf-grub-mkrescue
+
+   # Clean and rebuild
+   make clean
+   make all
    ```
 
-2. **QEMU Won't Start**
+4. **QEMU Won't Start**
 
    ```bash
    # Verify QEMU installation
@@ -227,7 +257,7 @@ make run-dual
    ls -la build/collabos.iso
    ```
 
-3. **Debugging with GDB**
+5. **Debugging with GDB**
 
    ```bash
    make debug

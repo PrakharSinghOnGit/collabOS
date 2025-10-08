@@ -2,11 +2,12 @@
 # Builds a bootable ISO for CollabOS
 
 # Compiler and tools configuration
-CC = i386-elf-gcc
-LD = i386-elf-ld
+CC = x86_64-elf-gcc
+LD = x86_64-elf-ld
 AS = nasm
-CFLAGS = -std=gnu99 -ffreestanding -O2 -Wall -Wextra -nostdlib -fno-builtin -fno-stack-protector
-LDFLAGS = -T linker.ld -nostdlib
+GRUB_MKRESCUE = i686-elf-grub-mkrescue
+CFLAGS = -std=gnu99 -ffreestanding -O2 -Wall -Wextra -nostdlib -fno-builtin -fno-stack-protector -m32
+LDFLAGS = -T linker.ld -nostdlib -m elf_i386
 ASFLAGS = -felf32
 
 # Directories
@@ -49,7 +50,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.s | $(BUILDDIR)
 $(ISO): $(KERNEL) | $(BOOTDIR)
 	cp $(KERNEL) $(BOOTDIR)/kernel.bin
 	cp boot/grub.cfg $(BOOTDIR)/grub/
-	grub-mkrescue -o $(ISO) $(ISODIR)
+	$(GRUB_MKRESCUE) -o $(ISO) $(ISODIR)
 
 # Create build directories
 $(BUILDDIR):
@@ -81,13 +82,13 @@ clean:
 install-deps:
 	@echo "Installing CollabOS development dependencies..."
 	@echo "Make sure you have the following installed:"
-	@echo "- i386-elf-gcc (cross-compiler)"
+	@echo "- x86_64-elf-gcc (cross-compiler for i386 target)"
 	@echo "- qemu-system-i386"
-	@echo "- grub-mkrescue"
+	@echo "- grub-mkrescue (or xorriso)"
 	@echo "- nasm"
 	@echo ""
-	@echo "On macOS with Homebrew:"
-	@echo "brew install qemu i386-elf-gcc nasm grub"
+	@echo "On macOS with Homebrew (Apple Silicon):"
+	@echo "brew install qemu x86_64-elf-gcc nasm xorriso"
 	@echo ""
 	@echo "On Ubuntu/Debian:"
 	@echo "sudo apt-get install qemu-system-x86 gcc-multilib nasm grub2-common xorriso"

@@ -4,37 +4,44 @@ ENTRY(_start)
 
 SECTIONS
 {
-    /* Kernel starts at 1MB */
-    . = 0x100000;
+    /* Kernel starts at 1MB (standard for multiboot) */
+    . = 0x00100000;
 
-    /* Multiboot header must be in first 8KB */
-    .multiboot :
+    /* Multiboot header MUST be in first 8KB and at the start */
+    .multiboot ALIGN(4K) : AT(ADDR(.multiboot))
     {
         *(.multiboot)
     }
 
-    /* Text section (code) */
-    .text ALIGN(4K) :
+    /* Text section (code) immediately after multiboot header */
+    .text ALIGN(4K) : AT(ADDR(.text))
     {
         *(.text)
+        *(.text.*)
     }
 
     /* Read-only data */
-    .rodata ALIGN(4K) :
+    .rodata ALIGN(4K) : AT(ADDR(.rodata))
     {
         *(.rodata)
+        *(.rodata.*)
     }
 
     /* Initialized data */
-    .data ALIGN(4K) :
+    .data ALIGN(4K) : AT(ADDR(.data))
     {
         *(.data)
+        *(.data.*)
     }
 
-    /* Uninitialized data */
-    .bss ALIGN(4K) :
+    /* Uninitialized data (BSS) */
+    .bss ALIGN(4K) : AT(ADDR(.bss))
     {
         *(COMMON)
         *(.bss)
+        *(.bss.*)
     }
+
+    /* End of kernel */
+    _kernel_end = .;
 }
