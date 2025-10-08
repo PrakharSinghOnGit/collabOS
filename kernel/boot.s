@@ -27,6 +27,9 @@ stack_top:
 section .text
 global _start:function (_start.end - _start)
 _start:
+    ; Write 'X' to top-left corner of screen to prove we got here
+    mov dword [0xB8000], 0x0F580F58  ; 'XX' in white on black
+    
     ; Set up stack pointer
     mov esp, stack_top
 
@@ -34,10 +37,19 @@ _start:
     push 0
     popf
 
+    ; Write 'Y' to prove we got past stack setup
+    mov dword [0xB8004], 0x0F590F59  ; 'YY' in white on black
+
+    ; Write 'C' before calling C code
+    mov dword [0xB8008], 0x0F430F43  ; 'CC' in white on black
+
     ; Call the kernel main function
     extern kernel_main
     call kernel_main
 
+    ; If kernel_main returns, show 'Z' and halt
+    mov dword [0xB800C], 0x0F5A0F5A  ; 'ZZ' in white on black
+    
     ; If kernel_main returns, halt the system
     cli         ; Disable interrupts
 .hang:

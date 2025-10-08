@@ -1,36 +1,36 @@
 #include "../include/screen.h"
 #include "../include/keyboard.h"
 #include "../include/net.h"
+#include "../include/serial.h"
 
 void kernel_main(void) {
-    // Initialize terminal
-    terminal_initialize();
+    // Ultra-simple VGA test
+    volatile uint16_t* vga = (volatile uint16_t*)0xB8000;
     
-    // Clear screen and display welcome message
-    clear_screen();
-    print("Welcome to CollabOS v0.1\n");
-    print("========================\n\n");
-    print("Initializing kernel...\n");
+    // Clear screen with green background
+    for (int i = 0; i < 80 * 25; i++) {
+        vga[i] = 0x2020;  // Space with green on black
+    }
     
-    // Initialize subsystems
-    keyboard_initialize();
-    print("Keyboard initialized.\n");
+    // Write message
+    const char* msg = "WELCOME TO COLLABOS v0.1 - SUCCESS!";
+    int col = 0;
+    while (msg[col] && col < 80) {
+        vga[col] = 0x0F00 | msg[col];  // White text on black background
+        col++;
+    }
     
-    network_initialize();
-    print("Network initialized.\n");
+    // Write second line
+    vga += 80;  // Next line
+    const char* msg2 = "Kernel is running! Press Ctrl+C in terminal or close window to exit.";
+    col = 0;
+    while (msg2[col] && col < 80) {
+        vga[col] = 0x0700 | msg2[col];  // Light gray text
+        col++;
+    }
     
-    print("\nCollabOS is ready!\n");
-    print("Type something to test the system:\n");
-    
-    // Main kernel loop
+    // Infinite loop with halt
     while (1) {
-        // Handle keyboard input
-        keyboard_handler();
-        
-        // Handle network packets
-        network_handler();
-        
-        // Simple halt instruction to prevent 100% CPU usage
-        asm volatile ("hlt");
+        __asm__ volatile ("hlt");
     }
 }

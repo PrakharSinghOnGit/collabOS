@@ -11,17 +11,15 @@ static char scan_code_to_ascii[256] = {
     '7', '8', '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.'
 };
 
-// Port I/O functions (simplified for cross-platform compilation)
+// Port I/O functions (inline assembly for i386)
 uint8_t inb(uint16_t port) {
-    // Placeholder implementation - will be replaced with proper assembly in final build
-    (void)port;
-    return 0;
+    uint8_t result;
+    __asm__ volatile ("inb %1, %0" : "=a"(result) : "Nd"(port));
+    return result;
 }
 
 void outb(uint16_t port, uint8_t data) {
-    // Placeholder implementation - will be replaced with proper assembly in final build
-    (void)port;
-    (void)data;
+    __asm__ volatile ("outb %0, %1" : : "a"(data), "Nd"(port));
 }
 
 void keyboard_initialize(void) {
