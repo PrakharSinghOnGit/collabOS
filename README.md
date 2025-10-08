@@ -7,6 +7,7 @@ A Linux-based operating system designed for real-time multi-user collaboration a
 **Important Update:** We've pivoted from bare-metal OS to Linux-based approach to focus on **collaborative features** instead of reinventing drivers and bootloaders.
 
 ### Why the Pivot?
+
 - ⚡ **90% faster development** - Linux handles drivers, networking, bootloader
 - 🎯 **Focus on goals** - Build collaboration features, not VGA drivers
 - 📦 **Better results** - Stable, demo-able system in weeks not months
@@ -50,6 +51,7 @@ CollabOS v2.0
 ## 🛠 Quick Start
 
 ### Option 1: Use Pre-built ISO (Coming Soon)
+
 ```bash
 # Download CollabOS ISO
 curl -LO https://github.com/PrakharSinghOnGit/collabOS/releases/collabos-v2.0.iso
@@ -59,6 +61,7 @@ qemu-system-x86_64 -cdrom collabos-v2.0.iso -m 1024M -boot d
 ```
 
 ### Option 2: Build from Source
+
 ```bash
 # See QUICK_START_V2.md for detailed instructions
 
@@ -76,11 +79,13 @@ qemu-system-x86_64 -cdrom alpine-virt-3.19.0-x86_64.iso -m 1024M -boot d
 ## 📚 Documentation
 
 ### Getting Started
+
 - **[QUICK_START_V2.md](QUICK_START_V2.md)** - Step-by-step setup guide
 - **[PIVOT_PLAN.md](PIVOT_PLAN.md)** - Complete v2.0 roadmap
 - **[COMPARISON.md](COMPARISON.md)** - Bare metal vs Linux comparison
 
 ### Legacy (v0.1 Bare Metal)
+
 - **[TESTING.md](TESTING.md)** - Text/desktop mode testing (v0.1)
 - **[DESKTOP_MODE.md](DESKTOP_MODE.md)** - Bare metal desktop docs (v0.1)
 - **[SESSION_COMPLETE.md](SESSION_COMPLETE.md)** - v0.1 session summary
@@ -90,22 +95,26 @@ qemu-system-x86_64 -cdrom alpine-virt-3.19.0-x86_64.iso -m 1024M -boot d
 ## 🎯 Development Roadmap
 
 ### Week 1: Foundation ✅
+
 - [x] Pivot decision made
 - [x] Documentation created
 - [ ] Alpine Linux setup
 - [ ] Development environment ready
 
 ### Week 2: Desktop
+
 - [ ] Custom window manager
 - [ ] CollabOS UI/UX
 - [ ] Basic applications (terminal, files)
 
 ### Week 3: Collaboration
+
 - [ ] Shared terminal prototype
 - [ ] Screen sharing
 - [ ] File synchronization
 
 ### Week 4: Polish
+
 - [ ] Performance optimization
 - [ ] Documentation
 - [ ] Demo preparation

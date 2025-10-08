@@ -3,6 +3,7 @@
 ## ✅ You Made the Right Choice!
 
 We're pivoting to **Alpine Linux** as our base. This means:
+
 - ✅ **Working today** instead of weeks from now
 - ✅ **Focus on collaboration** not bootloaders
 - ✅ **90% less low-level code** to write
@@ -13,6 +14,7 @@ We're pivoting to **Alpine Linux** as our base. This means:
 ## 📥 Step 1: Download Alpine Linux (5 minutes)
 
 ### Option A: Virtual ISO (Recommended for QEMU)
+
 ```bash
 # Download Alpine Virtual (optimized for VMs)
 curl -LO https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-virt-3.19.0-x86_64.iso
@@ -22,6 +24,7 @@ curl -LO https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-virt
 ```
 
 ### Option B: Standard ISO (if you want GUI tools)
+
 ```bash
 # Download Alpine Standard (includes more packages)
 curl -LO https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-standard-3.19.0-x86_64.iso
@@ -50,6 +53,7 @@ qemu-system-x86_64 \
 ```
 
 **What you'll see:**
+
 - Alpine Linux boot menu
 - Login prompt (username: `root`, no password for live CD)
 
@@ -196,7 +200,7 @@ class CollabOSWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="CollabOS v2.0")
         self.set_default_size(800, 600)
-        
+
         label = Gtk.Label(label="Welcome to CollabOS!\nLinux-based Edition")
         self.add(label)
 
@@ -217,6 +221,7 @@ python3 desktop/test-window.py
 ## 🌐 Step 7: Test Networking Between Two VMs
 
 ### Terminal 1: Start VM 1
+
 ```bash
 qemu-system-x86_64 \
   -hda alpine-disk1.qcow2 \
@@ -227,6 +232,7 @@ qemu-system-x86_64 \
 ```
 
 ### Terminal 2: Start VM 2
+
 ```bash
 qemu-system-x86_64 \
   -hda alpine-disk2.qcow2 \
@@ -237,6 +243,7 @@ qemu-system-x86_64 \
 ```
 
 ### Test Connection
+
 ```bash
 # In VM1:
 ip addr show  # Note the IP
@@ -268,7 +275,7 @@ terminal_process = None
 async def handle_client(websocket, path):
     global terminal_process
     connected_clients.add(websocket)
-    
+
     try:
         # Start terminal process if not running
         if terminal_process is None:
@@ -278,12 +285,12 @@ async def handle_client(websocket, path):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE
             )
-        
+
         async for message in websocket:
             # Send input to terminal
             terminal_process.stdin.write(message.encode())
             terminal_process.stdin.flush()
-            
+
             # Broadcast output to all clients
             output = terminal_process.stdout.read(1024)
             for client in connected_clients:
@@ -327,12 +334,14 @@ python3 collaboration/shared-terminal-server.py
 ## 🎉 What's Next?
 
 Once you complete these steps, you'll have:
+
 - ✅ Working Linux base with networking
 - ✅ Development environment ready
 - ✅ Desktop toolkit chosen
 - ✅ Foundation for collaborative features
 
 **Next session:**
+
 - Build CollabOS-branded desktop
 - Implement window manager
 - Create shared terminal UI
@@ -343,6 +352,7 @@ Once you complete these steps, you'll have:
 ## 💡 Tips
 
 ### SSH into Alpine for easier development
+
 ```bash
 # In Alpine VM:
 passwd  # Set root password
@@ -353,6 +363,7 @@ ssh -p 2222 root@localhost  # If using port forwarding
 ```
 
 ### Create disk image for persistence
+
 ```bash
 # Create 10GB disk
 qemu-img create -f qcow2 alpine-disk.qcow2 10G
@@ -366,6 +377,7 @@ qemu-system-x86_64 \
 ```
 
 ### Save your VM state
+
 ```bash
 # In QEMU monitor (Ctrl+Alt+2):
 savevm collabos-snapshot
@@ -379,6 +391,7 @@ loadvm collabos-snapshot
 ## 🆘 Troubleshooting
 
 **Q: Alpine won't boot in QEMU**
+
 ```bash
 # Try adding more memory
 -m 2048M
@@ -388,6 +401,7 @@ loadvm collabos-snapshot
 ```
 
 **Q: Network doesn't work**
+
 ```bash
 # In Alpine:
 setup-interfaces
@@ -395,6 +409,7 @@ rc-service networking restart
 ```
 
 **Q: Can't install packages**
+
 ```bash
 # Update repositories
 echo "http://dl-cdn.alpinelinux.org/alpine/v3.19/main" > /etc/apk/repositories
@@ -407,10 +422,10 @@ apk update
 ## 🚀 Ready to Start?
 
 **Time investment:** ~30 minutes to get Alpine running  
-**Payoff:** Working OS base with networking TODAY  
+**Payoff:** Working OS base with networking TODAY
 
 Let's build CollabOS v2.0! 🎉
 
 ---
 
-*The smart way to build an OS: stand on the shoulders of giants (Linux)*
+_The smart way to build an OS: stand on the shoulders of giants (Linux)_
