@@ -1,14 +1,8 @@
 # CollabOS - Collaborative Operating System# CollabOS - Collaborative Operating System
 
-
-
 **Real-time collaborative computing across multiple virtual machines**A Linux-based operating system designed for real-time multi-user collaboration and shared computing experiences.
 
-
-
 > Share terminals, screens, and work together in real-time over the network## 🎯 Project Status: PIVOTED TO LINUX-BASED ARCHITECTURE
-
-
 
 [![Status](https://img.shields.io/badge/Phase%201-95%25%20Complete-brightgreen)]()**Important Update:** We've pivoted from bare-metal OS to Linux-based approach to focus on **collaborative features** instead of reinventing drivers and bootloaders.
 
@@ -26,13 +20,11 @@
 
 ## 🚀 Quick Start (5 Minutes)- 🚀 **Real networking** - TCP/IP stack already works
 
+Test the shared terminal locally before setting up VMs:> 📖 **See [COMPARISON.md](COMPARISON.md) for detailed analysis**
 
+> 🚀 **See [QUICK_START_V2.md](QUICK_START_V2.md) to get started**
 
-Test the shared terminal locally before setting up VMs:> 📖 **See [COMPARISON.md](COMPARISON.md) for detailed analysis**  
-
-> 🚀 **See [QUICK_START_V2.md](QUICK_START_V2.md) to get started**  
-
-```bash> 📋 **See [PIVOT_PLAN.md](PIVOT_PLAN.md) for full roadmap**
+````bash> 📋 **See [PIVOT_PLAN.md](PIVOT_PLAN.md) for full roadmap**
 
 # 1. Install dependencies
 
@@ -118,9 +110,7 @@ Unlike traditional operating systems that isolate users, CollabOS treats collabo
 
 └─────────────┘                            └─────────────┘qemu-system-x86_64 -cdrom collabos-v2.0.iso -m 1024M -boot d
 
-``````
-
-
+````
 
 **Components:**### Option 2: Build from Source
 
@@ -130,8 +120,6 @@ Unlike traditional operating systems that isolate users, CollabOS treats collabo
 
 - **Protocol** - JSON messages over WebSocket# See QUICK_START_V2.md for detailed instructions
 
-
-
 ---# 1. Download Alpine Linux
 
 curl -LO https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-virt-3.19.0-x86_64.iso
@@ -140,7 +128,7 @@ curl -LO https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-virt
 
 # 2. Boot and install
 
-```qemu-system-x86_64 -cdrom alpine-virt-3.19.0-x86_64.iso -m 1024M -boot d
+````qemu-system-x86_64 -cdrom alpine-virt-3.19.0-x86_64.iso -m 1024M -boot d
 
 collabOS/
 
@@ -238,7 +226,7 @@ cd alpine- [ ] Documentation
 
 ./boot-vm1-install.sh- [ ] Demo preparation
 
-```
+````
 
 ---
 
@@ -284,7 +272,7 @@ Same process, use hostname: `collabos-vm2`brew install qemu x86_64-elf-gcc nasm 
 
 **Copy setup script to VMs:**
 
-```bash```bash
+`bash`bash
 
 # To VM1sudo apt-get update
 
@@ -302,7 +290,7 @@ scp -P 2222 setup-vm.sh root@localhost:/root/#### Windows
 
 **Run setup on each VM:**- Install a cross-compiler toolchain (MinGW-w64 or similar)
 
-```bash- Install NASM assembler
+````bash- Install NASM assembler
 
 # SSH to VM1
 
@@ -330,29 +318,27 @@ chmod +x /root/setup-vm.sh && /root/setup-vm.sh   cd /path/to/collabOS
 
 cd ../collaboration/shared-terminal   brew install qemu x86_64-elf-gcc nasm i686-elf-grub xorriso
 
-   ```
+````
 
 # Copy to VM1
 
 scp -P 2221 server.py client.py root@localhost:/root/collabos/3. **Build and run CollabOS:**
 
-
-
-# Copy to VM2   **Text Mode (default):**
+# Copy to VM2 **Text Mode (default):**
 
 scp -P 2222 server.py client.py root@localhost:/root/collabos/
 
-```   ```bash
+`   `bash
 
-   make run
+make run
 
-### Step 5: Test Collaboration! (10 minutes)   # or
+### Step 5: Test Collaboration! (10 minutes) # or
 
-   ./switch-mode.sh text
+./switch-mode.sh text
 
-**Terminal 1 - Start server on VM1:**   ```
+**Terminal 1 - Start server on VM1:** ```
 
-```bash
+````bash
 
 ssh root@localhost -p 2221   **Desktop Mode (graphical):**
 
@@ -362,11 +348,11 @@ python3 server.py   ```bash
 
 ```   ./switch-mode.sh desktop
 
-   ```
+````
 
 **Terminal 2 - Connect client on VM1:**
 
-```bash   **Check current mode:**
+````bash **Check current mode:**
 
 ssh root@localhost -p 2221
 
@@ -540,13 +526,13 @@ which qemu-system-x86_64
 
 pip3 install websockets# Type something to test the system:
 
-```
+````
 
 # On Alpine VM:
 
 pip3 install --break-system-packages websockets### Networking Tests
 
-```
+````
 
 ```bash
 
@@ -754,43 +740,39 @@ MIT License - See LICENSE file for details
 
 cd collaboration/shared-terminal && python3 server.py   ls -la build/collabos.iso
 
-   ```
+````
 
 # Install VMs
 
 cd alpine && ./boot-vm1-install.sh5. **Debugging with GDB**
 
+# Run VMs ```bash
 
+./boot-vm1.sh # VM1 make debug
 
-# Run VMs   ```bash
+./boot-vm2.sh # VM2 # In another terminal:
 
-./boot-vm1.sh  # VM1   make debug
+# gdb will connect automatically
 
-./boot-vm2.sh  # VM2   # In another terminal:
+# SSH to VMs ```
 
-   # gdb will connect automatically
+ssh root@localhost -p 2221 # VM1
 
-# SSH to VMs   ```
-
-ssh root@localhost -p 2221  # VM1
-
-ssh root@localhost -p 2222  # VM2## 🤝 Contributing
-
-
+ssh root@localhost -p 2222 # VM2## 🤝 Contributing
 
 # Deploy codeThis is an educational project demonstrating OS development concepts. Key areas for contribution:
 
-scp -P 2221 *.py root@localhost:/root/collabos/
+scp -P 2221 \*.py root@localhost:/root/collabos/
 
 - **Networking**: Implement actual TCP/UDP stack
 
 # Check status- **Hardware Support**: Add more device drivers
 
-ps aux | grep qemu       # VMs running?- **Collaboration Features**: Build on the networking foundation
+ps aux | grep qemu # VMs running?- **Collaboration Features**: Build on the networking foundation
 
-ps aux | grep server.py  # Server running?- **Documentation**: Improve code comments and guides
+ps aux | grep server.py # Server running?- **Documentation**: Improve code comments and guides
 
-lsof -i :8765           # Port open?
+lsof -i :8765 # Port open?
 
 ```## 📚 Learning Resources
 
@@ -808,19 +790,19 @@ After setup, you should be able to:
 
 ## 📄 License
 
-✅ Boot two Alpine Linux VMs  
+✅ Boot two Alpine Linux VMs
 
 ✅ SSH into both VMs from host  This project is created for educational purposes. Feel free to use, modify, and learn from the code.
 
-✅ Run shared terminal server  
+✅ Run shared terminal server
 
 ✅ Connect clients from both VMs  ---
 
-✅ Type command on VM2  
+✅ Type command on VM2
 
 ✅ See command execute on both VMs instantly  **CollabOS Team** | Building the future of collaborative computing 🌟
 
-✅ Support multiple simultaneous users  
+✅ Support multiple simultaneous users
 
 ---
 
@@ -839,3 +821,4 @@ After setup, you should be able to:
 ---
 
 *Last Updated: October 8, 2025*
+```

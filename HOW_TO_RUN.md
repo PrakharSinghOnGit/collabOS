@@ -5,6 +5,7 @@
 Test the shared terminal on your local machine before dealing with VMs:
 
 ### Step 1: Install websockets
+
 ```bash
 pip3 install websockets
 ```
@@ -12,30 +13,35 @@ pip3 install websockets
 ### Step 2: Open 3 terminals
 
 **Terminal 1 - Start the Server:**
+
 ```bash
 cd /Users/shaansingh/dev/projects/collabOS/collaboration/shared-terminal
 python3 server.py
 ```
 
 You should see:
+
 ```
 🚀 CollabOS Shared Terminal Server running on ws://0.0.0.0:8765
 📡 Waiting for clients to connect...
 ```
 
 **Terminal 2 - Start Client 1:**
+
 ```bash
 cd /Users/shaansingh/dev/projects/collabOS/collaboration/shared-terminal
 python3 client.py
 ```
 
 You should see:
+
 ```
 ✅ Connected to CollabOS Shared Terminal
 You are now in a shared terminal session.
 ```
 
 **Terminal 3 - Start Client 2:**
+
 ```bash
 cd /Users/shaansingh/dev/projects/collabOS/collaboration/shared-terminal
 python3 client.py
@@ -44,6 +50,7 @@ python3 client.py
 ### Step 3: Test it!
 
 Type in **any** terminal:
+
 ```bash
 ls -la
 pwd
@@ -70,6 +77,7 @@ cd /Users/shaansingh/dev/projects/collabOS/alpine
 ```
 
 When it boots:
+
 1. Login as `root` (no password needed)
 2. Type: `setup-alpine`
 3. Answer prompts:
@@ -143,6 +151,7 @@ scp -P 2222 server.py client.py root@localhost:/root/collabos/
 Open 3 terminals:
 
 **Terminal 1 - Server on VM1:**
+
 ```bash
 ssh root@localhost -p 2221
 cd /root/collabos
@@ -150,6 +159,7 @@ python3 server.py
 ```
 
 **Terminal 2 - Client on VM1:**
+
 ```bash
 ssh root@localhost -p 2221
 cd /root/collabos
@@ -157,6 +167,7 @@ python3 client.py --server ws://localhost:8765
 ```
 
 **Terminal 3 - Client on VM2:**
+
 ```bash
 ssh root@localhost -p 2222
 cd /root/collabos
@@ -170,20 +181,24 @@ Now type commands in Terminal 2 or Terminal 3 - they execute and appear in both!
 ## Common Issues
 
 ### "websockets not found"
+
 ```bash
 pip3 install websockets
 ```
 
 ### "QEMU not found"
+
 ```bash
 brew install qemu
 ```
 
 ### "Can't SSH to VM"
+
 - Wait 30 seconds after VM boots
 - Check VM is running: `ps aux | grep qemu`
 
 ### "Connection refused"
+
 - Make sure server is running first
 - From VM to host, use `10.0.2.2` not `localhost`
 
@@ -192,9 +207,11 @@ brew install qemu
 ## To Stop Everything
 
 **Local test:**
+
 - Press `Ctrl+C` in each terminal
 
 **VM test:**
+
 - Press `Ctrl+C` in client terminals
 - Press `Ctrl+C` in server terminal
 - In VM terminal, type: `poweroff`
@@ -204,6 +221,7 @@ brew install qemu
 ## Summary
 
 **Quickest way to see CollabOS in action:**
+
 1. `cd collaboration/shared-terminal`
 2. `python3 server.py` (Terminal 1)
 3. `python3 client.py` (Terminal 2)
@@ -212,6 +230,7 @@ brew install qemu
 6. Watch them execute in both! ✨
 
 **Most impressive demo (with VMs):**
+
 - Follow "Option 2" above
 - Show that VM1 and VM2 share the same terminal
 - Demonstrate real distributed collaboration
@@ -221,6 +240,7 @@ brew install qemu
 ## What's Next?
 
 After you've tested Phase 1, see:
+
 - **PHASE1_COMPLETE.md** - What's been built
 - **PROJECT_STATUS_PHASE1.md** - Full project report
 - **INSTALLATION_GUIDE.md** - Detailed setup
