@@ -1,33 +1,118 @@
-# CollabOS v0.1
+# CollabOS - Collaborative Operating System
 
-A collaborative operating system designed for real-time multi-user interaction and shared computing experiences.
+A Linux-based operating system designed for real-time multi-user collaboration and shared computing experiences.
 
-## 🚀 Project Overview
+## 🎯 Project Status: PIVOTED TO LINUX-BASED ARCHITECTURE
 
-CollabOS is a custom operating system built from scratch that focuses on enabling collaboration between multiple users and systems. This first milestone creates a minimal bootable OS with basic networking capabilities to serve as the foundation for advanced collaboration features.
+**Important Update:** We've pivoted from bare-metal OS to Linux-based approach to focus on **collaborative features** instead of reinventing drivers and bootloaders.
 
-### Key Features (v0.1)
+### Why the Pivot?
+- ⚡ **90% faster development** - Linux handles drivers, networking, bootloader
+- 🎯 **Focus on goals** - Build collaboration features, not VGA drivers
+- 📦 **Better results** - Stable, demo-able system in weeks not months
+- 🚀 **Real networking** - TCP/IP stack already works
 
-- ✅ Custom kernel that boots in VMs
-- ✅ **Dual boot modes**: Text mode (80x25) and Desktop mode (320x200 graphics)
-- ✅ VGA text mode with colors and scrolling
-- ✅ Graphics mode with pixel/line/rectangle drawing
-- ✅ Window manager with desktop environment
-- ✅ Basic keyboard input handling (port I/O)
-- ✅ Network communication framework
-- ✅ Foundation for inter-VM communication
+> 📖 **See [COMPARISON.md](COMPARISON.md) for detailed analysis**  
+> 🚀 **See [QUICK_START_V2.md](QUICK_START_V2.md) to get started**  
+> 📋 **See [PIVOT_PLAN.md](PIVOT_PLAN.md) for full roadmap**
 
-### Future Features (Roadmap)
+---
 
-- 🔄 Keyboard interrupts (IRQ1) for input handling
-- 🔄 Mouse driver for GUI interaction
-- 🔄 Interactive windows (drag, resize, close)
-- 🔄 Screen sharing between VMs
-- 🔄 Multi-user text editing
-- 🔄 File synchronization
-- 🔄 Real-time collaboration APIs
+## 🚀 CollabOS v2.0 Overview
 
-## 🛠 Development Setup
+CollabOS is now built on **Alpine Linux** with custom desktop environment and collaboration features.
+
+### Current Features (v2.0)
+
+- ✅ **Alpine Linux base** - Minimal, fast, secure
+- 🔄 **Custom desktop environment** - CollabOS-branded UI
+- 🔄 **Shared terminal** - Multiple users in same terminal session
+- 🔄 **Screen sharing** - View another user's desktop
+- 🔄 **File synchronization** - Real-time file sync between instances
+- 🔄 **Collaborative editing** - Real-time text editing
+
+### Architecture
+
+```
+CollabOS v2.0
+├─ Base: Alpine Linux (~130MB)
+├─ Desktop: Custom Window Manager (Python/GTK or C/X11)
+├─ Collaboration:
+│  ├─ Shared Terminal (WebSocket-based)
+│  ├─ Screen Sharing (VNC or custom)
+│  ├─ File Sync (rsync + inotify)
+│  └─ Real-time Editor (CRDT-based)
+└─ Network: Standard TCP/IP
+```
+
+---
+
+## 🛠 Quick Start
+
+### Option 1: Use Pre-built ISO (Coming Soon)
+```bash
+# Download CollabOS ISO
+curl -LO https://github.com/PrakharSinghOnGit/collabOS/releases/collabos-v2.0.iso
+
+# Boot in QEMU
+qemu-system-x86_64 -cdrom collabos-v2.0.iso -m 1024M -boot d
+```
+
+### Option 2: Build from Source
+```bash
+# See QUICK_START_V2.md for detailed instructions
+
+# 1. Download Alpine Linux
+curl -LO https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-virt-3.19.0-x86_64.iso
+
+# 2. Boot and install
+qemu-system-x86_64 -cdrom alpine-virt-3.19.0-x86_64.iso -m 1024M -boot d
+
+# 3. Follow setup in QUICK_START_V2.md
+```
+
+---
+
+## 📚 Documentation
+
+### Getting Started
+- **[QUICK_START_V2.md](QUICK_START_V2.md)** - Step-by-step setup guide
+- **[PIVOT_PLAN.md](PIVOT_PLAN.md)** - Complete v2.0 roadmap
+- **[COMPARISON.md](COMPARISON.md)** - Bare metal vs Linux comparison
+
+### Legacy (v0.1 Bare Metal)
+- **[TESTING.md](TESTING.md)** - Text/desktop mode testing (v0.1)
+- **[DESKTOP_MODE.md](DESKTOP_MODE.md)** - Bare metal desktop docs (v0.1)
+- **[SESSION_COMPLETE.md](SESSION_COMPLETE.md)** - v0.1 session summary
+
+---
+
+## 🎯 Development Roadmap
+
+### Week 1: Foundation ✅
+- [x] Pivot decision made
+- [x] Documentation created
+- [ ] Alpine Linux setup
+- [ ] Development environment ready
+
+### Week 2: Desktop
+- [ ] Custom window manager
+- [ ] CollabOS UI/UX
+- [ ] Basic applications (terminal, files)
+
+### Week 3: Collaboration
+- [ ] Shared terminal prototype
+- [ ] Screen sharing
+- [ ] File synchronization
+
+### Week 4: Polish
+- [ ] Performance optimization
+- [ ] Documentation
+- [ ] Demo preparation
+
+---
+
+## � Key Collaborative Features (v2.0)
 
 ### Prerequisites
 
