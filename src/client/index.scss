@@ -10,3 +10,38 @@ html {
   width: 100%;
   height: 100%;
 }
+
+.osjs-login-header span {
+  display: none !important;
+}
+
+/* Login screen customization */
+.osjs-login {
+  background: #0e1a2b !important;
+  border-radius: 3px !important;
+  padding: 2% !important;
+
+  /* Wallpaper will be set via inline styles from config */
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+.osjs-login-header {
+  color: #ffffff !important;
+  font-size: 2.5rem !important;
+  font-weight: 300 !important;
+  margin-bottom: 2rem !important;
+}
+
+.osjs-login-header::after {
+  content: 'Welcome To CollabOS' !important;
+  font-size: 3rem !important;
+  font-weight: 300 !important;
+  opacity: 0.8 !important;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+/* Hide default cursor globally */
+* {
+  cursor: none !important;
+}

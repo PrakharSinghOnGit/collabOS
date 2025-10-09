@@ -11,13 +11,13 @@ class MultiCursorClient {
     this.myId = null;
     this.rafPending = false;
     this.lastPosition = { x: 0, y: 0 };
+    this.cursorTimeouts = new Map(); // Track inactivity timeouts
+    this.INACTIVE_TIMEOUT = 3000; // Hide cursor after 3 seconds of inactivity
   }
 
   init() {
-    console.log("🎯 Initializing multi-cursor client...");
-    console.log("🔍 Checking Socket.IO availability...");
-    console.log("window.io exists:", typeof window.io !== "undefined");
-    console.log("window.io value:", window.io);
+    // Hide default cursor globally
+    document.body.style.cursor = "none";
 
     // Create overlay for remote cursors
     this.createOverlay();
@@ -30,12 +30,9 @@ class MultiCursorClient {
 
     // Setup local cursor tracking
     this.setupEventListeners();
-
-    console.log("✨ Multi-cursor client initialized");
   }
 
   createOverlay() {
-    console.log("🎨 Creating cursor overlay...");
     this.overlay = document.createElement("div");
     this.overlay.id = "multicursor-overlay";
     this.overlay.style.cssText = `
@@ -49,8 +46,6 @@ class MultiCursorClient {
       background: transparent !important;
     `;
     document.body.appendChild(this.overlay);
-    console.log("✅ Overlay created and appended to body");
-    console.log("Overlay element:", this.overlay);
   }
 
   injectStyles() {
@@ -95,35 +90,25 @@ class MultiCursorClient {
   }
 
   connectSocket() {
-    console.log("🔌 Attempting to connect Socket.IO...");
-
     if (!window.io) {
       console.error("❌ Socket.IO not loaded!");
-      console.error("window.io is:", window.io);
-      console.error(
-        "Available globals:",
-        Object.keys(window).filter(
-          (k) => k.includes("io") || k.includes("socket")
-        )
-      );
       return;
     }
 
-    console.log("✅ Socket.IO library found, creating connection...");
     this.socket = window.io();
-    console.log("Socket object created:", this.socket);
 
     this.socket.on("connect", () => {
       this.myId = this.socket.id;
-      console.log(`🔗 Connected to collaboration server: ${this.myId}`);
     });
 
     this.socket.on("participants:update", (participants) => {
-      console.log("👥 Current participants:", participants);
+      const me = participants.find((p) => p.id === this.myId);
+      if (me && !this.localCursor) {
+        this.createLocalCursor(me.color);
+      }
     });
 
     this.socket.on("cursor:joined", (data) => {
-      console.log(`👋 User joined: ${data.id}`);
       this.ensureCursor(data.id, data.color);
     });
 
@@ -136,18 +121,22 @@ class MultiCursorClient {
     });
 
     this.socket.on("cursor:left", (data) => {
-      console.log(`👋 User left: ${data.id}`);
       this.removeCursor(data.id);
     });
 
     this.socket.on("disconnect", () => {
-      console.log("🔌 Disconnected from collaboration server");
+      console.log("Disconnected from collaboration server");
     });
   }
 
   setupEventListeners() {
     // Track cursor movement with throttling
     document.addEventListener("pointermove", (e) => {
+      // Update local cursor position immediately
+      if (this.localCursor) {
+        this.localCursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+      }
+
       if (!this.socket || !this.socket.connected) return;
 
       if (!this.rafPending) {
@@ -192,7 +181,6 @@ class MultiCursorClient {
 
   ensureCursor(id, color) {
     if (!this.cursors.has(id)) {
-      console.log(`➕ Creating cursor for user ${id} with color ${color}`);
       const cursor = document.createElement("div");
       cursor.className = "remote-cursor";
       cursor.innerHTML = `
@@ -205,9 +193,6 @@ class MultiCursorClient {
       `;
       this.overlay.appendChild(cursor);
       this.cursors.set(id, { element: cursor, color });
-      console.log(
-        `✅ Cursor created for ${id}, total cursors: ${this.cursors.size}`
-      );
     }
   }
 
@@ -216,20 +201,33 @@ class MultiCursorClient {
 
     const cursor = this.cursors.get(data.id);
     if (cursor) {
+      // Show cursor (in case it was hidden)
+      cursor.element.style.opacity = "1";
+
       // Convert normalized coordinates back to pixels
       const x = data.x * window.innerWidth;
       const y = data.y * window.innerHeight;
 
       cursor.element.style.transform = `translate(${x}px, ${y}px)`;
 
+      // Clear existing timeout
+      if (this.cursorTimeouts.has(data.id)) {
+        clearTimeout(this.cursorTimeouts.get(data.id));
+      }
+
+      // Set new timeout to hide cursor after inactivity
+      const timeout = setTimeout(() => {
+        if (cursor.element) {
+          cursor.element.style.opacity = "0";
+          cursor.element.style.transition = "opacity 0.5s ease-out";
+        }
+      }, this.INACTIVE_TIMEOUT);
+
+      this.cursorTimeouts.set(data.id, timeout);
+
       // Log occasionally (every 100 moves) to avoid spam
       if (!this.moveCount) this.moveCount = 0;
       this.moveCount++;
-      if (this.moveCount % 100 === 0) {
-        console.log(
-          `🖱️ Updated cursor ${data.id} to (${Math.round(x)}, ${Math.round(y)})`
-        );
-      }
     }
   }
 
@@ -251,6 +249,27 @@ class MultiCursorClient {
       cursor.element.remove();
       this.cursors.delete(id);
     }
+  }
+
+  createLocalCursor(color) {
+    this.localCursor = document.createElement("div");
+    this.localCursor.className = "local-cursor";
+    this.localCursor.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      z-index: 9999999;
+      will-change: transform;
+    `;
+    this.localCursor.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 2L18 10L10 12L8 18L2 2Z" fill="${color}" stroke="white" stroke-width="1.5"/>
+      </svg>
+    `;
+    document.body.appendChild(this.localCursor);
   }
 }
 

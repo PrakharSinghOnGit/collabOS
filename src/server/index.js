@@ -36,14 +36,11 @@ osjs
     const httpServer = osjs.httpServer;
 
     if (!httpServer) {
-      console.error("❌ Could not find HTTP server!");
-      console.log("osjs.httpServer:", osjs.httpServer);
-      console.log("osjs.app:", osjs.app);
-      console.log("osjs.app.server:", osjs.app ? osjs.app.server : "no app");
+      console.error("Could not find HTTP server!");
       return;
     }
 
-    console.log("✅ Found HTTP server, attaching Socket.IO...");
+    console.log("Socket.IO server initializing...");
 
     // Initialize Socket.IO
     const { Server } = require("socket.io");
@@ -71,7 +68,7 @@ osjs
     let colorIndex = 0;
 
     io.on("connection", (socket) => {
-      console.log(`✨ User connected: ${socket.id}`);
+      console.log(`User connected: ${socket.id}`);
 
       // Assign color to new participant
       const userColor = colors[colorIndex % colors.length];
@@ -114,12 +111,12 @@ osjs
 
       // Handle disconnection
       socket.on("disconnect", () => {
-        console.log(`👋 User disconnected: ${socket.id}`);
+        console.log(`User disconnected: ${socket.id}`);
         participants.delete(socket.id);
         socket.broadcast.emit("cursor:left", { id: socket.id });
       });
     });
 
-    console.log("✨ CollabOS multi-cursor collaboration enabled");
+    console.log("CollabOS multi-cursor collaboration enabled");
   })
   .catch(shutdown(1));
