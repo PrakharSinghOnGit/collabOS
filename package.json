@@ -17,8 +17,8 @@
     "make:application": "osjs-cli make:application",
     "make:iframe-application": "osjs-cli make:iframe-application",
     "make:provider": "osjs-cli make:provider",
-    "build": "webpack",
-    "watch": "webpack --watch"
+    "build": "NODE_OPTIONS=--openssl-legacy-provider webpack",
+    "watch": "NODE_OPTIONS=--openssl-legacy-provider webpack --watch"
   },
   "keywords": [
     "collaborative",
@@ -49,7 +49,10 @@
     "@osjs/settings-application": "^1.2.0",
     "@osjs/standard-theme": "^4.0.9",
     "@osjs/textpad-application": "^1.2.7",
+    "caniuse-lite": "^1.0.30001749",
     "hyperapp": "^1.2.10",
+    "nanoid": "^5.1.6",
+    "socket.io": "^4.8.1",
     "typeface-roboto": "0.0.75"
   },
   "engines": {
