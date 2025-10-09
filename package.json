@@ -27,26 +27,26 @@
   ],
   "author": "PrakharSinghOnGit",
   "devDependencies": {
-    "@osjs/dev-meta": "^2.1.0",
+    "@osjs/dev-meta": "^2.3.2",
     "html-webpack-plugin": "^3.2.0",
     "source-map-loader": "^0.2.4"
   },
   "dependencies": {
     "@osjs/calculator-application": "^1.2.8",
-    "@osjs/cli": "^3.1.3",
-    "@osjs/client": "^3.7.1",
-    "@osjs/dialogs": "^3.1.0",
+    "@osjs/cli": "^3.2.0",
+    "@osjs/client": "^3.10.0",
+    "@osjs/dialogs": "^3.2.2",
     "@osjs/draw-application": "^1.2.12",
-    "@osjs/filemanager-application": "^1.6.2",
+    "@osjs/filemanager-application": "^1.6.3",
     "@osjs/freedesktop-sounds": "^3.0.3",
     "@osjs/gnome-icons": "^4.0.5",
-    "@osjs/gui": "^4.0.36",
+    "@osjs/gui": "^4.1.0",
     "@osjs/htmlviewer-application": "^1.2.6",
     "@osjs/musicplayer-application": "^1.2.8",
-    "@osjs/panels": "^3.0.31",
+    "@osjs/panels": "^3.0.32",
     "@osjs/preview-application": "^1.1.17",
-    "@osjs/server": "^3.2.3",
-    "@osjs/settings-application": "^1.1.8",
+    "@osjs/server": "^3.4.3",
+    "@osjs/settings-application": "^1.2.0",
     "@osjs/standard-theme": "^4.0.9",
     "@osjs/textpad-application": "^1.2.7",
     "hyperapp": "^1.2.10",
@@ -62,9 +62,17 @@
     },
     "parserOptions": {
       "sourceType": "module",
-      "ecmaVersion": 8
+      "ecmaVersion": 2020
     },
-    "extends": "@osjs/eslint-config"
+    "extends": "@osjs/eslint-config",
+    "rules": {
+      "quotes": "off",
+      "object-curly-spacing": "off",
+      "space-before-function-paren": "off",
+      "prefer-object-spread": "off",
+      "curly": "off",
+      "semi": "off"
+    }
   },
   "stylelint": {
     "extends": "@osjs/stylelint-config"
