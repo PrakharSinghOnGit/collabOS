@@ -147,7 +147,10 @@ osjs
 
       // Content update (for text editors, etc.)
       socket.on("app:content", (data) => {
-        console.log(`Content update from ${socket.id}:`, data.content?.substring(0, 50));
+        console.log(
+          `Content update from ${socket.id}:`,
+          data.content?.substring(0, 50)
+        );
         socket.broadcast.emit("app:content", data);
       });
 

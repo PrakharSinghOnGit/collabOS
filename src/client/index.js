@@ -70,21 +70,25 @@ const init = () => {
       setTimeout(() => {
         if (multiCursor.socket && multiCursor.socket.connected) {
           console.log("✅ Socket connected, initializing app sharing...");
-          
+
           // Create AppSharingClient NOW (after boot)
           appSharing = new AppSharingClient(osjs);
           appSharing.init(multiCursor.socket);
-          
+
           console.log("✅ Application sharing initialized");
         } else {
-          console.error("❌ Socket not connected, retrying app sharing init...");
+          console.error(
+            "❌ Socket not connected, retrying app sharing init..."
+          );
           setTimeout(() => {
             if (multiCursor.socket && multiCursor.socket.connected) {
-              console.log("🔄 Retry: Socket connected, initializing app sharing...");
-              
+              console.log(
+                "🔄 Retry: Socket connected, initializing app sharing..."
+              );
+
               appSharing = new AppSharingClient(osjs);
               appSharing.init(multiCursor.socket);
-              
+
               console.log("✅ Application sharing initialized (retry)");
             } else {
               console.error("❌ Socket still not connected after retry");

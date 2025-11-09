@@ -32,7 +32,7 @@ class AppSharingClient {
 
     // Hook into window management
     this.hookWindowEvents();
-    
+
     console.log("✅ Application sharing initialized successfully");
   }
 
@@ -88,7 +88,10 @@ class AppSharingClient {
     // Content update from another user (text changes)
     this.socket.on("app:content", (data) => {
       if (data.userId === this.myId) return;
-      console.log("📥 Received content update:", data.content?.substring(0, 50));
+      console.log(
+        "📥 Received content update:",
+        data.content?.substring(0, 50)
+      );
       this.handleRemoteContent(data);
     });
 
@@ -115,31 +118,31 @@ class AppSharingClient {
     console.log("🔗 Hooking into OS.js application events");
     console.log("OS.js instance:", this.osjs);
     console.log("OS.js.run function:", typeof this.osjs.run);
-    
+
     // CRITICAL FIX: Intercept osjs.run() directly instead of relying on events
     const originalRun = this.osjs.run.bind(this.osjs);
-    
+
     this.osjs.run = async (name, args, options) => {
       console.log("🚀 APPLICATION LAUNCHED VIA osjs.run():", name);
-      
+
       // Call the original run function
       const app = await originalRun(name, args, options);
-      
+
       if (app && !this.suppressEvents) {
         console.log("✅ App instance created:", app.metadata.name);
-        
+
         // Wait for the app to fully initialize
         setTimeout(() => {
           console.log("📡 Broadcasting app launch...");
           this.handleLocalAppLaunch(app);
         }, 100);
       }
-      
+
       return app;
     };
-    
+
     console.log("✅ osjs.run() intercepted successfully");
-    
+
     // Also try the event-based approach as fallback
     this.osjs.on("osjs/application:launched", (app) => {
       console.log("📱 [EVENT] Application launched:", app.metadata.name);
@@ -208,14 +211,15 @@ class AppSharingClient {
     // Wait for window to be ready
     setTimeout(() => {
       console.log("🔧 Hooking window content for:", appId);
-      
+
       const iframe = win.$element?.querySelector("iframe");
       const contentDiv = win.$content;
 
       if (iframe) {
         // For iframe-based apps
         try {
-          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+          const iframeDoc =
+            iframe.contentDocument || iframe.contentWindow.document;
           console.log("📄 Found iframe, setting up listeners");
           this.setupContentListeners(iframeDoc, appId);
           this.setupContentMonitoring(iframeDoc, appId);
@@ -228,7 +232,7 @@ class AppSharingClient {
         this.setupContentListeners(contentDiv, appId);
         this.setupContentMonitoring(contentDiv, appId);
       }
-      
+
       // Special handling for textarea/input elements (like Notepad)
       this.setupTextEditorSync(win, appId);
     }, 500); // Increased delay to ensure app is fully loaded
@@ -236,60 +240,76 @@ class AppSharingClient {
 
   setupTextEditorSync(win, appId) {
     console.log("🎯 Setting up text editor sync for:", appId);
-    
+
     // Find all text inputs, textareas, and contenteditable elements
     const findTextElements = (root) => {
       const elements = [];
-      
+
       // Check iframe content
       const iframe = root.$element?.querySelector("iframe");
       if (iframe) {
         try {
           const doc = iframe.contentDocument || iframe.contentWindow.document;
-          const found = doc.querySelectorAll("textarea, input[type='text'], [contenteditable='true']");
+          const found = doc.querySelectorAll(
+            "textarea, input[type='text'], [contenteditable='true']"
+          );
           elements.push(...found);
           console.log(`📄 Found ${found.length} text elements in iframe`);
         } catch (e) {
           console.warn("Cannot access iframe for text elements:", e);
         }
       }
-      
+
       // Check regular content
       if (root.$content) {
-        const found = root.$content.querySelectorAll("textarea, input[type='text'], [contenteditable='true']");
+        const found = root.$content.querySelectorAll(
+          "textarea, input[type='text'], [contenteditable='true']"
+        );
         elements.push(...found);
         console.log(`📄 Found ${found.length} text elements in content div`);
       }
-      
+
       // Also check entire window element
       if (root.$element) {
-        const found = root.$element.querySelectorAll("textarea, input[type='text'], [contenteditable='true']");
+        const found = root.$element.querySelectorAll(
+          "textarea, input[type='text'], [contenteditable='true']"
+        );
         elements.push(...found);
         console.log(`📄 Found ${found.length} text elements in window element`);
       }
-      
+
       return elements;
     };
 
     const setupElements = () => {
       const textElements = findTextElements(win);
-      console.log(`📝 TOTAL: Found ${textElements.length} text elements in ${appId}`);
-      
+      console.log(
+        `📝 TOTAL: Found ${textElements.length} text elements in ${appId}`
+      );
+
       if (textElements.length === 0) {
         console.warn("⚠️ No text elements found yet, will retry...");
         return false;
       }
-      
+
       textElements.forEach((element, index) => {
-        console.log(`✅ Setting up sync for text element ${index}:`, element.tagName, element.className);
-        
+        console.log(
+          `✅ Setting up sync for text element ${index}:`,
+          element.tagName,
+          element.className
+        );
+
         // Track content changes
         const syncContent = () => {
           if (this.suppressEvents) return;
-          
-          const content = element.value || element.textContent || element.innerText || "";
-          console.log(`📤 Broadcasting content update for ${appId}:`, content.substring(0, 50));
-          
+
+          const content =
+            element.value || element.textContent || element.innerText || "";
+          console.log(
+            `📤 Broadcasting content update for ${appId}:`,
+            content.substring(0, 50)
+          );
+
           this.socket.emit("app:content", {
             appId: appId,
             userId: this.myId,
@@ -298,30 +318,32 @@ class AppSharingClient {
             timestamp: Date.now(),
           });
         };
-        
+
         // Listen for ALL possible input events
         element.addEventListener("input", syncContent);
         element.addEventListener("change", syncContent);
         element.addEventListener("keyup", syncContent);
         element.addEventListener("keydown", syncContent);
         element.addEventListener("paste", syncContent);
-        
+
         console.log("✅ Event listeners attached to element", index);
-        
+
         // Store reference for later updates
         if (!this.textElements) this.textElements = new Map();
         if (!this.textElements.has(appId)) this.textElements.set(appId, []);
         this.textElements.get(appId).push(element);
       });
-      
+
       return true;
     };
 
     // Try multiple times with increasing delays
     const delays = [500, 1000, 1500, 2000, 3000];
-    delays.forEach(delay => {
+    delays.forEach((delay) => {
       setTimeout(() => {
-        console.log(`🔍 Attempting to find text elements (delay: ${delay}ms)...`);
+        console.log(
+          `🔍 Attempting to find text elements (delay: ${delay}ms)...`
+        );
         const success = setupElements();
         if (success) {
           console.log(`✅ Successfully set up text sync after ${delay}ms`);
@@ -334,7 +356,7 @@ class AppSharingClient {
     // Monitor for DOM mutations (content changes)
     const observer = new MutationObserver((mutations) => {
       if (this.suppressEvents) return;
-      
+
       // Broadcast content snapshot
       this.broadcastContentSnapshot(appId, element);
     });
@@ -354,16 +376,16 @@ class AppSharingClient {
   broadcastContentSnapshot(appId, element) {
     // Throttle snapshots
     if (this.snapshotThrottle) return;
-    
+
     this.snapshotThrottle = true;
     setTimeout(() => {
       this.snapshotThrottle = false;
-      
+
       if (this.suppressEvents) return;
-      
+
       // Get serializable content
       const content = element.innerHTML || element.textContent;
-      
+
       this.socket.emit("app:snapshot", {
         appId: appId,
         userId: this.myId,
@@ -433,10 +455,10 @@ class AppSharingClient {
   handleLocalAppLaunch(app) {
     console.log("🚀 handleLocalAppLaunch called");
     console.log("App metadata:", app.metadata);
-    
+
     const appId = this.generateAppId(app);
     console.log("Generated app ID:", appId);
-    
+
     this.sharedApps.set(appId, app);
     console.log("Shared apps count:", this.sharedApps.size);
 
@@ -445,7 +467,7 @@ class AppSharingClient {
       app.windows[0]._collabAppId = appId;
       this.markWindowAsShared(app.windows[0]);
       console.log("Window marked as shared");
-      
+
       // CRITICAL: Set up aggressive content sync
       setTimeout(() => {
         this.setupAggressiveContentSync(app.windows[0], appId);
@@ -455,14 +477,14 @@ class AppSharingClient {
     // Broadcast to other users
     console.log("📡 Broadcasting app:launch event");
     console.log("Socket connected:", this.socket.connected);
-    
+
     this.socket.emit("app:launch", {
       appId: appId,
       appName: app.metadata.name,
       userId: this.myId,
       timestamp: Date.now(),
     });
-    
+
     console.log("✅ App launch broadcast complete");
   }
 
@@ -503,7 +525,7 @@ class AppSharingClient {
         if (app.windows && app.windows.length > 0) {
           app.windows[0]._collabAppId = appId;
           this.markWindowAsShared(app.windows[0]);
-          
+
           // CRITICAL: Set up content sync immediately
           setTimeout(() => {
             this.setupAggressiveContentSync(app.windows[0], appId);
@@ -529,26 +551,27 @@ class AppSharingClient {
   // New aggressive content sync method
   setupAggressiveContentSync(win, appId) {
     console.log("🎯 Setting up AGGRESSIVE content sync for:", appId);
-    
+
     // Method 1: Watch the entire window content for any changes
     const watchContent = () => {
       let lastContent = "";
-      
+
       const captureContent = () => {
         if (this.suppressEvents) return;
-        
+
         try {
           // Try to get content from various sources
           let content = "";
-          
+
           // Check iframe
           const iframe = win.$element?.querySelector("iframe");
           if (iframe) {
             try {
-              const doc = iframe.contentDocument || iframe.contentWindow.document;
+              const doc =
+                iframe.contentDocument || iframe.contentWindow.document;
               const textarea = doc.querySelector("textarea");
               const input = doc.querySelector("input[type='text']");
-              
+
               if (textarea) content = textarea.value;
               else if (input) content = input.value;
               else content = doc.body?.innerText || "";
@@ -556,22 +579,25 @@ class AppSharingClient {
               console.warn("Cannot access iframe:", e);
             }
           }
-          
+
           // Check window content
           if (!content && win.$content) {
             const textarea = win.$content.querySelector("textarea");
             const input = win.$content.querySelector("input[type='text']");
-            
+
             if (textarea) content = textarea.value;
             else if (input) content = input.value;
             else content = win.$content.innerText || "";
           }
-          
+
           // Only broadcast if content changed
           if (content && content !== lastContent) {
-            console.log("📤 Content changed! Broadcasting:", content.substring(0, 50));
+            console.log(
+              "📤 Content changed! Broadcasting:",
+              content.substring(0, 50)
+            );
             lastContent = content;
-            
+
             this.socket.emit("app:content", {
               appId: appId,
               userId: this.myId,
@@ -583,57 +609,69 @@ class AppSharingClient {
           console.error("Error capturing content:", error);
         }
       };
-      
+
       // Poll for changes every 200ms
       setInterval(captureContent, 200);
-      
+
       // Also capture immediately
       setTimeout(captureContent, 500);
     };
-    
+
     // Method 2: Set up event listeners on the entire window
     const setupGlobalListeners = () => {
       const targets = [win.$element, win.$content];
-      
-      targets.forEach(target => {
+
+      targets.forEach((target) => {
         if (!target) return;
-        
+
         console.log("📡 Setting up listeners on:", target);
-        
+
         // Capture ALL events
-        ["input", "change", "keyup", "keydown", "paste", "cut"].forEach(eventType => {
-          target.addEventListener(eventType, (e) => {
-            if (this.suppressEvents) return;
-            
-            console.log(`🎹 Event captured: ${eventType} on`, e.target.tagName);
-            
-            // Get content from the target
-            let content = "";
-            if (e.target.value !== undefined) {
-              content = e.target.value;
-            } else if (e.target.textContent) {
-              content = e.target.textContent;
-            }
-            
-            if (content) {
-              console.log("📤 Broadcasting from event:", content.substring(0, 50));
-              
-              this.socket.emit("app:content", {
-                appId: appId,
-                userId: this.myId,
-                content: content,
-                timestamp: Date.now(),
-              });
-            }
-          }, true); // Use capture phase
-        });
+        ["input", "change", "keyup", "keydown", "paste", "cut"].forEach(
+          (eventType) => {
+            target.addEventListener(
+              eventType,
+              (e) => {
+                if (this.suppressEvents) return;
+
+                console.log(
+                  `🎹 Event captured: ${eventType} on`,
+                  e.target.tagName
+                );
+
+                // Get content from the target
+                let content = "";
+                if (e.target.value !== undefined) {
+                  content = e.target.value;
+                } else if (e.target.textContent) {
+                  content = e.target.textContent;
+                }
+
+                if (content) {
+                  console.log(
+                    "📤 Broadcasting from event:",
+                    content.substring(0, 50)
+                  );
+
+                  this.socket.emit("app:content", {
+                    appId: appId,
+                    userId: this.myId,
+                    content: content,
+                    timestamp: Date.now(),
+                  });
+                }
+              },
+              true
+            ); // Use capture phase
+          }
+        );
       });
     };
-    
+
     // Execute both methods
     watchContent();
     setupGlobalListeners();
-    
+
     console.log("✅ Aggressive sync active for:", appId);
   }
 
@@ -763,7 +801,7 @@ class AppSharingClient {
   handleRemoteContent(data) {
     console.log("🔄 Applying remote content update for:", data.appId);
     console.log("📦 Content length:", data.content?.length);
-    
+
     const app = this.sharedApps.get(data.appId);
     if (!app) {
       console.warn("❌ App not found:", data.appId);
@@ -783,7 +821,7 @@ class AppSharingClient {
     try {
       // Try to update content in multiple ways
       let updated = false;
-      
+
       // Method 1: Update iframe content
       const iframe = win.$element?.querySelector("iframe");
       if (iframe) {
@@ -791,7 +829,7 @@ class AppSharingClient {
           const doc = iframe.contentDocument || iframe.contentWindow.document;
           const textarea = doc.querySelector("textarea");
           const input = doc.querySelector("input[type='text']");
-          
+
           if (textarea) {
             console.log("✍️ Updating iframe textarea");
             textarea.value = data.content;
@@ -807,12 +845,12 @@ class AppSharingClient {
           console.warn("Cannot update iframe:", e);
         }
       }
-      
+
       // Method 2: Update window content
       if (!updated && win.$content) {
         const textarea = win.$content.querySelector("textarea");
         const input = win.$content.querySelector("input[type='text']");
-        
+
         if (textarea) {
           console.log("✍️ Updating content textarea");
           textarea.value = data.content;
@@ -825,7 +863,7 @@ class AppSharingClient {
           updated = true;
         }
       }
-      
+
       if (updated) {
         console.log("✅ Content updated successfully");
       } else {
@@ -847,7 +885,7 @@ class AppSharingClient {
     try {
       const win = app.windows[0];
       const contentDiv = win.$content;
-      
+
       if (contentDiv && data.content) {
         // Update HTML content
         contentDiv.innerHTML = data.content;
