@@ -109,6 +109,67 @@ osjs
         );
       });
 
+      // ============================================
+      // Application Sharing Events
+      // ============================================
+
+      // Application launched
+      socket.on("app:launch", (data) => {
+        console.log(`App launched by ${socket.id}:`, data.appName);
+        socket.broadcast.emit("app:launched", data);
+      });
+
+      // Application closed
+      socket.on("app:close", (data) => {
+        console.log(`App closed by ${socket.id}:`, data.appId);
+        socket.broadcast.emit("app:closed", data);
+      });
+
+      // Window moved/resized
+      socket.on("window:move", (data) => {
+        socket.broadcast.emit("window:moved", data);
+      });
+
+      // Window state changed
+      socket.on("window:state", (data) => {
+        socket.broadcast.emit("window:state", data);
+      });
+
+      // Application state update
+      socket.on("app:state", (data) => {
+        socket.broadcast.emit("app:state", data);
+      });
+
+      // Input event
+      socket.on("app:input", (data) => {
+        socket.broadcast.emit("app:input", data);
+      });
+
+      // Content update (for text editors, etc.)
+      socket.on("app:content", (data) => {
+        console.log(`Content update from ${socket.id}:`, data.content?.substring(0, 50));
+        socket.broadcast.emit("app:content", data);
+      });
+
+      // Content snapshot (full content sync)
+      socket.on("app:snapshot", (data) => {
+        socket.broadcast.emit("app:snapshot", data);
+      });
+
+      // Sync request
+      socket.on("sync:request", (data) => {
+        socket.broadcast.emit("sync:request", data);
+      });
+
+      // Sync state
+      socket.on("sync:state", (data) => {
+        socket.broadcast.emit("sync:state", data);
+      });
+
+      // ============================================
+      // End Application Sharing Events
+      // ============================================
+
       // Handle disconnection
       socket.on("disconnect", () => {
         console.log(`User disconnected: ${socket.id}`);

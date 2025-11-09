@@ -24,6 +24,7 @@ import { DialogServiceProvider } from "@osjs/dialogs";
 import config from "./config.js";
 import "./index.scss";
 import MultiCursorClient from "./multicursor.js";
+import AppSharingClient from "./appsharing.js";
 
 const init = () => {
   const osjs = new Core(config, {});
@@ -44,22 +45,55 @@ const init = () => {
   // Initialize multi-cursor collaboration
   const multiCursor = new MultiCursorClient();
 
+  // We'll initialize app sharing AFTER osjs is fully booted
+  let appSharing = null;
+
   // Listen for desktop ready events
-  osjs.on("osjs/desktop:ready", () => initMultiCursor());
-  osjs.on("osjs/core:started", () => initMultiCursor());
-  osjs.on("init", () => initMultiCursor());
+  osjs.on("osjs/desktop:ready", () => initCollaboration());
+  osjs.on("osjs/core:started", () => initCollaboration());
+  osjs.on("init", () => initCollaboration());
 
   // Fallback initialization after delay
-  setTimeout(() => initMultiCursor(), 2000);
+  setTimeout(() => initCollaboration(), 2000);
 
-  function initMultiCursor() {
+  function initCollaboration() {
     if (multiCursor.initialized) return;
 
+    console.log("🎯 initCollaboration called");
+
     try {
+      // Initialize multi-cursor
       multiCursor.init();
       multiCursor.initialized = true;
+
+      // Initialize app sharing AFTER osjs is booted and socket is connected
+      setTimeout(() => {
+        if (multiCursor.socket && multiCursor.socket.connected) {
+          console.log("✅ Socket connected, initializing app sharing...");
+          
+          // Create AppSharingClient NOW (after boot)
+          appSharing = new AppSharingClient(osjs);
+          appSharing.init(multiCursor.socket);
+          
+          console.log("✅ Application sharing initialized");
+        } else {
+          console.error("❌ Socket not connected, retrying app sharing init...");
+          setTimeout(() => {
+            if (multiCursor.socket && multiCursor.socket.connected) {
+              console.log("🔄 Retry: Socket connected, initializing app sharing...");
+              
+              appSharing = new AppSharingClient(osjs);
+              appSharing.init(multiCursor.socket);
+              
+              console.log("✅ Application sharing initialized (retry)");
+            } else {
+              console.error("❌ Socket still not connected after retry");
+            }
+          }, 2000);
+        }
+      }, 1000);
     } catch (error) {
-      console.error("Failed to initialize multi-cursor:", error);
+      console.error("❌ Failed to initialize collaboration:", error);
     }
   }
 };
