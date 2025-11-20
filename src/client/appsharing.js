@@ -24,14 +24,14 @@ class AppSharingClient {
     // Add status indicator
     this.createStatusIndicator();
 
+    // Add chat UI
+    this.createChatUI();
+
     // Listen for application events from server
     this.setupSocketListeners();
 
     // Hook into OS.js application lifecycle
     this.hookApplicationEvents();
-
-    // Hook into window management
-    this.hookWindowEvents();
 
     console.log("✅ Application sharing initialized successfully");
   }
@@ -46,7 +46,217 @@ class AppSharingClient {
     document.body.appendChild(indicator);
   }
 
+  createChatUI() {
+    const chatContainer = document.createElement("div");
+    chatContainer.id = "collab-chat";
+    chatContainer.innerHTML = `
+      <div class="chat-header">
+        <span>💬 Chat</span>
+        <button class="chat-toggle" onclick="document.getElementById('collab-chat').classList.toggle('minimized')">−</button>
+      </div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-container">
+        <input type="text" id="chat-input" placeholder="Type a message..." />
+        <button id="chat-send">Send</button>
+      </div>
+    `;
+    document.body.appendChild(chatContainer);
+
+    // Add chat styles
+    const style = document.createElement("style");
+    style.textContent = `
+      #collab-chat {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 320px;
+        height: 400px;
+        background: rgba(30, 30, 30, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        display: flex;
+        flex-direction: column;
+        z-index: 10000;
+        transition: all 0.3s ease;
+      }
+      #collab-chat.minimized {
+        height: 45px;
+        overflow: hidden;
+      }
+      .chat-header {
+        padding: 12px 16px;
+        background: rgba(60, 60, 60, 0.8);
+        border-radius: 12px 12px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #fff;
+        font-weight: 600;
+        font-size: 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .chat-toggle {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .chat-toggle:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .chat-message {
+        padding: 8px 12px;
+        border-radius: 8px;
+        max-width: 85%;
+        word-wrap: break-word;
+        animation: slideIn 0.2s ease;
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .chat-message.own {
+        background: #0084ff;
+        color: white;
+        align-self: flex-end;
+        margin-left: auto;
+      }
+      .chat-message.other {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        align-self: flex-start;
+      }
+      .chat-message .sender {
+        font-size: 11px;
+        opacity: 0.7;
+        margin-bottom: 2px;
+      }
+      .chat-message .text {
+        font-size: 13px;
+        line-height: 1.4;
+      }
+      .chat-input-container {
+        padding: 12px;
+        display: flex;
+        gap: 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      #chat-input {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        font-size: 13px;
+        outline: none;
+      }
+      #chat-input:focus {
+        border-color: #0084ff;
+        background: rgba(255, 255, 255, 0.15);
+      }
+      #chat-send {
+        padding: 8px 16px;
+        background: #0084ff;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        transition: background 0.2s;
+      }
+      #chat-send:hover {
+        background: #0073e6;
+      }
+      #chat-send:active {
+        transform: scale(0.95);
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Set up chat event listeners
+    const input = document.getElementById("chat-input");
+    const sendBtn = document.getElementById("chat-send");
+
+    const sendMessage = () => {
+      const message = input.value.trim();
+      if (message) {
+        this.sendChatMessage(message);
+        input.value = "";
+      }
+    };
+
+    sendBtn.onclick = sendMessage;
+    input.onkeypress = (e) => {
+      if (e.key === "Enter") sendMessage();
+    };
+  }
+
+  sendChatMessage(message) {
+    // Add to own chat
+    this.addChatMessage(message, this.myId, true);
+
+    // Broadcast to others
+    this.socket.emit("chat:message", {
+      userId: this.myId,
+      message: message,
+      timestamp: Date.now(),
+    });
+  }
+
+  addChatMessage(message, userId, isOwn = false) {
+    const messagesContainer = document.getElementById("chat-messages");
+    const messageDiv = document.createElement("div");
+    messageDiv.className = `chat-message ${isOwn ? "own" : "other"}`;
+
+    messageDiv.innerHTML = `
+      <div class="sender">${
+        isOwn ? "You" : `User ${userId.substring(0, 6)}`
+      }</div>
+      <div class="text">${this.escapeHtml(message)}</div>
+    `;
+
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   setupSocketListeners() {
+    // Chat messages
+    this.socket.on("chat:message", (data) => {
+      if (data.userId === this.myId) return;
+      this.addChatMessage(data.message, data.userId, false);
+    });
+
     // Application launched by another user
     this.socket.on("app:launched", (data) => {
       if (data.userId === this.myId) return; // Ignore own events
@@ -94,6 +304,14 @@ class AppSharingClient {
       );
       this.handleRemoteContent(data);
     });
+
+    // Canvas update from another user
+    this.socket.on("app:canvas", (data) => {
+      if (data.userId === this.myId) return;
+      this.handleRemoteCanvasState(data);
+    });
+
+    // Content snapshot from another user
 
     // Content snapshot from another user
     this.socket.on("app:snapshot", (data) => {
@@ -172,13 +390,21 @@ class AppSharingClient {
 
     // Track window movements
     win.on("moved", () => {
-      if (this.suppressEvents) return;
+      if (this.suppressEvents) {
+        console.log("🚫 Window moved event suppressed (remote update)");
+        return;
+      }
+      console.log("📤 Window moved detected:", appId);
       this.broadcastWindowMove(appId, win);
     });
 
     // Track window resizing
     win.on("resized", () => {
-      if (this.suppressEvents) return;
+      if (this.suppressEvents) {
+        console.log("🚫 Window resized event suppressed (remote update)");
+        return;
+      }
+      console.log("📤 Window resized detected:", appId);
       this.broadcastWindowMove(appId, win);
     });
 
@@ -235,6 +461,9 @@ class AppSharingClient {
 
       // Special handling for textarea/input elements (like Notepad)
       this.setupTextEditorSync(win, appId);
+
+      // Special handling for Canvas elements (like Draw)
+      this.setupCanvasSync(win, appId);
     }, 500); // Increased delay to ensure app is fully loaded
   }
 
@@ -347,6 +576,99 @@ class AppSharingClient {
         const success = setupElements();
         if (success) {
           console.log(`✅ Successfully set up text sync after ${delay}ms`);
+        }
+      }, delay);
+    });
+  }
+
+  setupCanvasSync(win, appId) {
+    console.log("🎨 Setting up canvas sync for:", appId);
+
+    const findCanvas = (root) => {
+      // Check iframe content
+      const iframe = root.$element?.querySelector("iframe");
+      if (iframe) {
+        try {
+          const doc = iframe.contentDocument || iframe.contentWindow.document;
+          const canvas = doc.querySelector("canvas");
+          if (canvas) return canvas;
+        } catch (e) {
+          console.warn("Cannot access iframe for canvas:", e);
+        }
+      }
+
+      // Check regular content
+      if (root.$content) {
+        const canvas = root.$content.querySelector("canvas");
+        if (canvas) return canvas;
+      }
+
+      return null;
+    };
+
+    const setup = () => {
+      const canvas = findCanvas(win);
+      if (!canvas) {
+        return false;
+      }
+
+      console.log("✅ Found canvas element:", canvas);
+
+      // Store reference
+      if (!this.canvasElements) this.canvasElements = new Map();
+      this.canvasElements.set(appId, canvas);
+
+      const broadcastCanvas = () => {
+        if (this.suppressEvents) return;
+
+        console.log("📤 Broadcasting canvas state for:", appId);
+        const dataUrl = canvas.toDataURL();
+        this.socket.emit("app:canvas", {
+          appId: appId,
+          userId: this.myId,
+          dataUrl: dataUrl,
+          timestamp: Date.now(),
+        });
+      };
+
+      // Sync canvas state on mouseup (end of drawing stroke)
+      canvas.addEventListener("mouseup", broadcastCanvas);
+      canvas.addEventListener("mouseout", broadcastCanvas);
+
+      // Real-time sync while drawing (throttled)
+      let isDrawing = false;
+      canvas.addEventListener("mousedown", () => {
+        isDrawing = true;
+      });
+      // Use window listener for mouseup to catch if they release outside canvas
+      window.addEventListener("mouseup", () => {
+        isDrawing = false;
+      });
+
+      let throttleTimer = null;
+      canvas.addEventListener("mousemove", () => {
+        if (!isDrawing || this.suppressEvents) return;
+
+        if (!throttleTimer) {
+          throttleTimer = setTimeout(() => {
+            broadcastCanvas();
+            throttleTimer = null;
+          }, 100); // 10 updates per second
+        }
+      });
+
+      // Also broadcast immediately to sync initial state
+      broadcastCanvas();
+
+      return true;
+    };
+
+    // Retry logic - extended
+    const delays = [500, 1000, 2000, 3000, 5000, 8000];
+    delays.forEach((delay) => {
+      setTimeout(() => {
+        if (setup()) {
+          console.log(`✅ Canvas sync set up after ${delay}ms`);
         }
       }, delay);
     });
@@ -471,6 +793,8 @@ class AppSharingClient {
       // CRITICAL: Set up aggressive content sync
       setTimeout(() => {
         this.setupAggressiveContentSync(app.windows[0], appId);
+        // Disabled: Window position/size sync (users can arrange independently)
+        // this.hookWindowEvents(app.windows[0], appId);
       }, 500);
     }
 
@@ -478,6 +802,7 @@ class AppSharingClient {
     console.log("📡 Broadcasting app:launch event");
     console.log("Socket connected:", this.socket.connected);
 
+    // Don't send position/dimension - let each user arrange windows independently
     this.socket.emit("app:launch", {
       appId: appId,
       appName: app.metadata.name,
@@ -529,6 +854,10 @@ class AppSharingClient {
           // CRITICAL: Set up content sync immediately
           setTimeout(() => {
             this.setupAggressiveContentSync(app.windows[0], appId);
+            // Disabled: Let users arrange windows independently
+            // this.hookWindowEvents(app.windows[0], appId);
+            // if (data.position) app.windows[0].setPosition(data.position);
+            // if (data.dimension) app.windows[0].setDimension(data.dimension);
           }, 500);
         }
 
@@ -750,6 +1079,37 @@ class AppSharingClient {
     }
   }
 
+  handleRemoteCanvasState(data) {
+    console.log("🎨 Received canvas update for:", data.appId);
+    const canvas = this.canvasElements?.get(data.appId);
+    if (!canvas) {
+      console.warn("⚠️ Canvas not found for appId:", data.appId);
+      console.log(
+        "Available canvases:",
+        Array.from(this.canvasElements?.keys() || [])
+      );
+      return;
+    }
+
+    console.log("✅ Found canvas, applying update");
+    // Don't suppress events here because drawing the image doesn't trigger input events
+    // But it might trigger mutation observers if we had them on canvas
+    this.suppressEvents = true;
+
+    const img = new Image();
+    img.onload = () => {
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      console.log("✅ Canvas updated successfully");
+      this.suppressEvents = false;
+    };
+    img.onerror = (err) => {
+      console.error("❌ Failed to load canvas image:", err);
+      this.suppressEvents = false;
+    };
+    img.src = data.dataUrl;
+  }
+
   handleRemoteInput(data) {
     const app = this.sharedApps.get(data.appId);
     if (!app || !app.windows || app.windows.length === 0) return;
@@ -757,7 +1117,12 @@ class AppSharingClient {
     this.suppressEvents = true;
 
     const win = app.windows[0];
-    const element = win.$content;
+    let element = win.$content;
+
+    // Prefer canvas if available for this app
+    if (this.canvasElements && this.canvasElements.has(data.appId)) {
+      element = this.canvasElements.get(data.appId);
+    }
 
     if (!element) {
       this.suppressEvents = false;
@@ -898,17 +1263,16 @@ class AppSharingClient {
   }
 
   broadcastWindowMove(appId, win) {
+    const position = win.state.position;
+    const dimension = win.state.dimension;
+
+    console.log("📡 Broadcasting window move:", { appId, position, dimension });
+
     this.socket.emit("window:move", {
       appId: appId,
       userId: this.myId,
-      position: {
-        left: win.state.position.left,
-        top: win.state.position.top,
-      },
-      dimension: {
-        width: win.state.dimension.width,
-        height: win.state.dimension.height,
-      },
+      position: position,
+      dimension: dimension,
       timestamp: Date.now(),
     });
   }

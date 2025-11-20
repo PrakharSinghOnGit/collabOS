@@ -113,6 +113,12 @@ osjs
       // Application Sharing Events
       // ============================================
 
+      // Chat message
+      socket.on("chat:message", (data) => {
+        console.log(`Chat message from ${socket.id}:`, data.message);
+        socket.broadcast.emit("chat:message", data);
+      });
+
       // Application launched
       socket.on("app:launch", (data) => {
         console.log(`App launched by ${socket.id}:`, data.appName);
@@ -152,6 +158,12 @@ osjs
           data.content?.substring(0, 50)
         );
         socket.broadcast.emit("app:content", data);
+      });
+
+      // Canvas update (for Draw app)
+      socket.on("app:canvas", (data) => {
+        // console.log(`Canvas update from ${socket.id} for ${data.appId}`);
+        socket.broadcast.emit("app:canvas", data);
       });
 
       // Content snapshot (full content sync)

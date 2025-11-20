@@ -105,68 +105,98 @@ Window position synchronized across all clients
    - Window positions and states applied automatically
 
 5. **Visual Feedback**
+1.  **Automatic Application Replication**
 
-   - Shared windows have blue border highlight
-   - "👥 Shared" badge appears on window title bars
-   - "App Sharing Active" status indicator in bottom-right
+    -   When any user launches an app, it appears for everyone
+    -   Maintains unique app instances with synchronized IDs
 
-6. **Event Loop Prevention**
-   - `suppressEvents` flag prevents infinite loops
-   - Remote-triggered actions don't re-broadcast
+2.  **Window Synchronization**
+
+    -   Position (x, y coordinates)
+    -   Size (width, height)
+    -   State (minimized, maximized, restored)
+    -   Z-index (window stacking order)
+
+3.  **Input Event Forwarding**
+
+    -   Mouse clicks (mousedown, mouseup)
+    -   Mouse movement (mousemove - throttled)
+    -   Keyboard input (keydown, keyup with modifiers)
+
+4.  **State Synchronization**
+
+    -   New users joining receive full state from existing users
+    -   Applications are launched to match current session
+    -   Window positions and states applied automatically
+
+5.  **Visual Feedback**
+
+    -   Shared windows have blue border highlight
+    -   "👥 Shared" badge appears on window title bars
+    -   "App Sharing Active" status indicator in bottom-right
+
+6.  **Event Loop Prevention**
+    -   `suppressEvents` flag prevents infinite loops
+    -   Remote-triggered actions don't re-broadcast
+
+7.  **Canvas Synchronization (Draw App)**
+    -   Real-time drawing synchronization via input event forwarding
+    -   Full state synchronization using `toDataURL` on stroke completion
+    -   Support for `mousedown`, `mousemove`, `mouseup` on canvas elements
 
 ### ⚠️ Limitations
 
-1. **Application-Specific Content**
+1.  **Application-Specific Content**
 
-   - Generic input forwarding may not work perfectly for all apps
-   - Complex applications (like Paint with canvas) need custom handlers
-   - File operations are not synchronized
+    -   Generic input forwarding may not work perfectly for all apps
+    -   Complex applications (like Paint with canvas) need custom handlers (Implemented for Draw)
+    -   File operations are not synchronized
 
-2. **Performance**
+2.  **Performance**
 
-   - Input events are throttled to prevent overwhelming network
-   - High-frequency operations (like rapid drawing) may lag
+    -   Input events are throttled to prevent overwhelming network
+    -   High-frequency operations (like rapid drawing) may lag
 
-3. **Application State**
-   - Application internal state is not fully synchronized
-   - Only DOM events are forwarded
-   - Canvas/WebGL content requires special handling
+3.  **Application State**
+    -   Application internal state is not fully synchronized
+    -   Only DOM events are forwarded
+    -   Canvas/WebGL content requires special handling
 
 ## Usage Instructions
 
 ### For Users
 
-1. **Start CollabOS**
+1.  **Start CollabOS**
 
-   ```bash
-   npm run serve
-   ```
+    ```bash
+    npm run serve
+    ```
 
-2. **Open Multiple Browser Windows**
+2.  **Open Multiple Browser Windows**
 
-   - Navigate to `http://localhost:8000` in each window
-   - Login with credentials (demo/demo)
+    -   Navigate to `http://localhost:8000` in each window
+    -   Login with credentials (demo/demo)
 
-3. **Launch an Application**
+3.  **Launch an Application**
 
-   - Click on any application from the menu
-   - Notice it appears in ALL browser windows
-   - Look for the blue border and "👥 Shared" badge
+    -   Click on any application from the menu
+    -   Notice it appears in ALL browser windows
+    -   Look for the blue border and "👥 Shared" badge
 
-4. **Interact with Shared Apps**
+4.  **Interact with Shared Apps**
 
-   - Any user can click, type, or interact
-   - Actions are visible to all users in real-time
-   - Move/resize windows - everyone sees the changes
+    -   Any user can click, type, or interact
+    -   Actions are visible to all users in real-time
+    -   Move/resize windows - everyone sees the changes
 
-5. **Close Applications**
-   - Closing an app in one window closes it for everyone
+5.  **Close Applications**
+    -   Closing an app in one window closes it for everyone
 
 ### Visual Indicators
 
-- **Blue Border**: Indicates a window is shared across all clients
-- **👥 Badge**: Shows "Shared" label on window title bar
-- **Status Dot**: Green pulsing dot in bottom-right indicates app sharing is active
+-   **Blue Border**: Indicates a window is shared across all clients
+-   **👥 Badge**: Shows "Shared" label on window title bar
+-   **Status Dot**: Green pulsing dot in bottom-right indicates app sharing is active
 
 ## Technical Details
 
@@ -196,9 +226,9 @@ Each shared application gets a unique ID:
 
 This ensures:
 
-- Multiple instances of the same app can coexist
-- Each instance is uniquely trackable
-- IDs are consistent across clients
+-   Multiple instances of the same app can coexist
+-   Each instance is uniquely trackable
+-   IDs are consistent across clients
 
 ### Input Event Throttling
 
@@ -232,118 +262,101 @@ When handling remote events, we set this flag so the action doesn't trigger anot
 
 ### High Priority
 
-1. **Canvas Synchronization**
+2.  **Text Editor Collaboration**
 
-   - Implement canvas state serialization for Paint app
-   - Broadcast drawing operations as they happen
-   - Sync brush strokes, colors, and tools
+    -   Operational Transformation (OT) for text editing
+    -   Cursor position indicators for each user
+    -   Conflict resolution for simultaneous edits
 
-2. **Text Editor Collaboration**
-
-   - Operational Transformation (OT) for text editing
-   - Cursor position indicators for each user
-   - Conflict resolution for simultaneous edits
-
-3. **File System Sharing**
-   - Synchronize file operations (create, edit, delete)
-   - Shared file browser state
-   - File upload/download synchronization
+3.  **File System Sharing**
+    -   Synchronize file operations (create, edit, delete)
+    -   Shared file browser state
+    -   File upload/download synchronization
 
 ### Medium Priority
 
-4. **Application Permissions**
+4.  **Application Permissions**
 
-   - Owner/participant roles
-   - Read-only mode for certain users
-   - Lock applications to prevent accidental changes
+    -   Owner/participant roles
+    -   Read-only mode for certain users
+    -   Lock applications to prevent accidental changes
 
-5. **User Presence Indicators**
+5.  **User Presence Indicators**
 
-   - Show which user is actively using which app
-   - Highlight active user in window title
-   - Color-coded user indicators
+    -   Show which user is actively using which app
+    -   Highlight active user in window title
+    -   Color-coded user indicators
 
-6. **Performance Optimization**
-   - Delta synchronization (only send changes)
-   - Binary protocol for faster transmission
-   - Compression for large payloads
+6.  **Performance Optimization**
+    -   Delta synchronization (only send changes)
+    -   Binary protocol for faster transmission
+    -   Compression for large payloads
 
 ### Low Priority
 
-7. **Application-Specific Handlers**
+7.  **Application-Specific Handlers**
 
-   - Custom synchronization for music player
-   - Video player synchronization (play/pause/seek)
-   - Calculator result sharing
+    -   Custom synchronization for music player
+    -   Video player synchronization (play/pause/seek)
+    -   Calculator result sharing
 
-8. **Session Recording**
+8.  **Session Recording**
 
-   - Record collaboration sessions
-   - Replay functionality
-   - Export session history
+    -   Record collaboration sessions
+    -   Replay functionality
+    -   Export session history
 
-9. **Cross-Session Persistence**
-   - Save shared application state
-   - Resume sessions after disconnect
-   - Session history and recovery
+9.  **Cross-Session Persistence**
+    -   Save shared application state
+    -   Resume sessions after disconnect
+    -   Session history and recovery
 
 ## Testing
 
 ### Manual Test Procedure
 
-1. **Two-User Basic Test**
+1.  **Two-User Basic Test**
 
-   ```
-   - Open two browser windows
-   - Login to both
-   - User 1: Open Paint
-   - Verify: User 2 sees Paint open
-   - User 2: Click in Paint
-   - Verify: User 1 sees the action
-   ```
+    ```
+    - Open two browser windows
+    - Login to both
+    - User 1: Open Paint
+    - Verify: User 2 sees Paint open
+    - User 2: Click in Paint
+    - Verify: User 1 sees the action
+    ```
 
-2. **Window Management Test**
+2.  **Window Management Test**
 
-   ```
-   - User 1: Move Paint window
-   - Verify: Window moves for User 2
-   - User 1: Maximize Paint
-   - Verify: Paint maximizes for User 2
-   - User 2: Minimize Paint
-   - Verify: Paint minimizes for User 1
-   ```
+    ```
+    - User 1: Move Paint window
+    - Verify: Window moves for User 2
+    - User 1: Maximize Paint
+    - Verify: Paint maximizes for User 2
+    - User 2: Minimize Paint
+    - Verify: Paint minimizes for User 1
+    ```
 
-3. **Multiple Applications Test**
+3.  **Multiple Applications Test**
 
-   ```
-   - User 1: Open Paint
-   - User 2: Open Text Editor
-   - User 1: Open Settings
-   - Verify: All users see all three apps
-   - Verify: All windows are marked as shared
-   ```
+    ```
+    - User 1: Open Paint
+    - User 2: Open Text Editor
+    - User 1: Open Settings
+    - Verify: All users see all three apps
+    - Verify: All windows are marked as shared
+    ```
 
-4. **Late Join Test**
-   ```
-   - User 1: Open Paint and Text Editor
-   - User 2: Join session
-   - Verify: User 2 sees both apps automatically
-   - Verify: Window positions match
-   ```
+4.  **Late Join Test**
+    ```
+    - User 1: Open Paint and Text Editor
+    - User 2: Join session
+    - Verify: User 2 sees both apps automatically
+    - Verify: Window positions match
+    ```
 
 ### Known Issues
 
-1. **Canvas Not Syncing**
-
-   - Drawing in Paint doesn't sync yet
-   - Only window operations sync
-   - **Solution**: Needs canvas-specific implementation
-
-2. **Input Coordinate Offset**
-
-   - Clicks may be slightly off target
-   - Due to coordinate system differences
-   - **Solution**: Normalize coordinates relative to app window
 
 3. **Rapid Events Lost**
    - Very fast typing may skip keys
